@@ -12,7 +12,9 @@ class Point:
             return
         self.id = Point(None,None,a,b)
 
-        #TODO: vérifier que c'est sur la courbe
+        #vérifier que (x,y) est sur la courbe
+        if y*3!=x**2+a*x+b:
+            raise ValueError("le point n'est pas sur la courbe.")
     
     def __eq__(self,other):
         return self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b
@@ -43,7 +45,7 @@ class Point:
             return self.id
         
         #5eme cas les points sont égaux mais y'a une slope
-        if self==other:
+        if self==other_point:
             
             slope = (3*self.x**2 + self.a)/(2*self.y)
             new_x = slope**2 - 2*self.x
