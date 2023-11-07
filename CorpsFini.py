@@ -41,6 +41,7 @@ class CorpsFini:
         nb = (self.nb **exposant) % self.nb_premier
         return self.__class__(nb, self.nb_premier)
 
+    #TODO: division par zéro à prévoir
     def __truediv__(self, other):
         '''Fait la division flottante entre a et b : a/b, de toute manière
         le résultat sera entier'''
