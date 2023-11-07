@@ -44,7 +44,3 @@ class testCorpsFini(unittest.TestCase):
         self.assertEqual(self.CF2**3, CorpsFini((5**3)%7,7))
 
 
-if __name__ == '__main__':
-        unittest.main(verbosity=2)
-
-
