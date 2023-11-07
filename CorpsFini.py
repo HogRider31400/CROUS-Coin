@@ -45,6 +45,8 @@ class CorpsFini:
         '''Fait la division flottante entre a et b : a/b, de toute manière
         le résultat sera entier'''
         primeValid(self, other)
+        if (other.nb == 0):
+            raise ZeroDivisionError("le diviseur doit être non nul")
         ##Calcul de l'inverse : b^(-1) = b^(nb_premier-2)
         inverse_op2 = other.nb ** ((other.nb_premier)-2)
         return self * self.__class__(inverse_op2, self.nb_premier)
