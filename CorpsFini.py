@@ -42,9 +42,6 @@ class CorpsFini:
         nb = (self.nb * other) % self.nb_premier
         return self.__class__(nb, self.nb_premier)
 
-    def __pow__(self, exposant):
-        nb = (self.nb **exposant) % self.nb_premier
-        return self.__class__(nb, self.nb_premier)
 
     def __truediv__(self, other):
         '''Fait la division flottante entre a et b : a/b, de toute manière

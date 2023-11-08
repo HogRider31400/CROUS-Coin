@@ -1,21 +1,19 @@
 from random import randint
 from Point import Point
+
 def ordre_point(point):
     cur_point = point
     nb = 1
     while not (cur_point == Point(None,None,point.a,point.b,point.nb_premier)):
-        print(cur_point.x,cur_point.y)
         cur_point += point
         nb += 1
     return nb
 
-print(ordre_point(Point(15,86,0,7,223)))
-
 class ClePrivee:
     ###### à mettre chez le corps fini comme variable globale
     PREMIER = 512
-    G = (1,1) #A définir
-    N = 1 #A definir, ordre du point dans la courbe
+    G = Point(15,86,0,7,223) #A définir
+    N = ordre_point(G) #A definir, ordre du point dans la courbe
 
     #Attributs : e, le secret
 

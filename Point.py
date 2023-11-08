@@ -51,11 +51,8 @@ class Point:
         #3eme cas les points ne sont pas égaux
         if self.x != other_point.x:
             slope = (other_point.y - self.y)/(other_point.x-self.x)
-            print(slope)
             new_x = slope**2 - self.x - other_point.x
-            print(new_x)
-            new_y = slope*(self.x-new_x) - other_point.y
-            print("aled",new_x,new_y,self.x,self.y,other_point.x,other_point.y)
+            new_y = slope*(self.x-new_x) - self.y
             return Point(new_x,new_y,self.a.nb,self.b.nb,self.nb_premier)
         
         #4eme cas les points sont égaux et la slope est en +inf
@@ -64,7 +61,6 @@ class Point:
         
         #5eme cas les points sont égaux mais y'a une slope
         if self==other_point:
-            
             slope = (3*self.x**2 + self.a)/(2*self.y)
             new_x = slope**2 - 2*self.x
             new_y = slope*(self.x-new_x) - self.y
