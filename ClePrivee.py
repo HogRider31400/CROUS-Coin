@@ -15,13 +15,6 @@ class ClePrivee:
 
     def hex(self):
         return e.zfill(64)
-    
-    def verifier(self,z,signature):
-        s_inverse = pow(signature.s,N-2,N)
-        u = z*s_inverse%N
-        v = signature.r*s_inv%N
-        total = u*G + v*self
-        return total.x == signature.r
 
     def signer(self, z):
         ####---------------------------------------------

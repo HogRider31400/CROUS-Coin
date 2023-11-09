@@ -9,4 +9,9 @@ class Signature:
     def __repr__(self):
         return "Signature ("+str(r)+", "+str(s)+')'
     
-    #Vérification de la signature à faire ici
+    def verifier(self,z,G,N):
+        s_inverse = pow(self.s,N-2,N)
+        u = z*s_inverse%N
+        v = self.r*s_inv%N
+        total = u*G + v*self.point
+        return total.x == self.r
