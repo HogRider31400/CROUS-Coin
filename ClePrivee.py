@@ -7,10 +7,10 @@ def ordre_point(point):
     while not (cur_point == Point(None,None,point.CE)):
         cur_point += point
         nb += 1
-    return nb
+    return nb 
 
 class ClePrivee:
-    ###### à mettre chez le corps fini comme variable globale
+    ###### à mettre chez le corps fini comme variable globales
     PREMIER = 512
     G = Point(15,86,CourbeElliptique(0,7,223)) #A définir
     N = ordre_point(G) #A definir, ordre du point dans la courbe
@@ -36,10 +36,33 @@ class ClePrivee:
         ## Déterminer un meilleur moyen d'avoir k
         ###----------------------------------------------
         ######RENDRE K UNIQUE, cf la suite
-        k = randint(0, 2**N)
+        k = self.determinerK(z)
         r = (k*G).x.nb
-        k_inverse = pow(k, N-2, N)
-        s = ((z+r*self.e)*k_inverse) % N
-        if s > N/2:
-            s = N - s
+        k_inverse = pow(k, PREMIER-2, PREMIER)
+        s = ((z+r*self.e)*k_inverse) % PREMIER
+        if s > PREMIER/2:
+            s = PREMIER - s
         return Signature(r, s)
+  
+    def determinerK(self, z):
+        k = b'\x00' * SIZE
+        v = b'\x01' * SIZE
+        if z > PREMIER:
+            z -= PREMIER
+        z_bytes = z.to_bytes(SIZE, 'big')
+        e_bytes = self.e.to_bytes(SIZE, 'big')
+        s256 = hashlib.sha256
+        #double hash sha256 pour obtenir un k,v aléatoire
+        k = hmac.new(k, v + b'\x00' + e_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        k = hmac.new(k, v + b'\x01' + e_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        while True:
+            v = hmac.new(k, v, s256).digest()
+            candidat = int.from_bytes(v, 'big')
+            if candidat >= 1 and candidat < PREMIER:
+                return candidat
+            k = hmac.new(k, v + b'\x00', s256).digest()
+            v = hmac.new(k, v, s256).digest()
+
+

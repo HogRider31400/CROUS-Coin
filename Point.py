@@ -28,7 +28,6 @@ class Point:
 
 
     def __add__(self,other_point):
-        #0eme cas : les deux ne sont pas sur la même courbe, à faire quand mael aura fait la classe
 
 
         #1er cas l'un des deux est l'identité
