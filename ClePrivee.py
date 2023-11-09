@@ -1,11 +1,19 @@
 from random import randint
-import CorpsFini as CP
-import Point as P
+from Point import Point
+
+def ordre_point(point):
+    cur_point = point
+    nb = 1
+    while not (cur_point == Point(None,None,point.a,point.b,point.nb_premier)):
+        cur_point += point
+        nb += 1
+    return nb 
 
 class ClePrivee:
-    ###### à mettre chez le corps fini comme variable globale
+    ###### à mettre chez le corps fini comme variable globales
     PREMIER = 512
-    SIZE=64
+    G = Point(15,86,0,7,223) #A définir
+    N = ordre_point(G) #A definir, ordre du point dans la courbe
 
     #Attributs : e, le secret
 
@@ -14,7 +22,14 @@ class ClePrivee:
         self.point = e * G ##P = eG
 
     def hex(self):
-        return e.zfill(SIZE)
+        return e.zfill(64)
+    
+    def verifier(self,z,signature):
+        s_inverse = pow(signature.s,N-2,N)
+        u = z*s_inverse%N
+        v = signature.r*s_inv%N
+        total = u*G + v*self
+        return total.x == signature.r
 
     def signer(self, z):
         ####---------------------------------------------

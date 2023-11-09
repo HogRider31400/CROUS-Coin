@@ -4,11 +4,12 @@ class CorpsFini:
     ##Attributs : nb et nb_premier
 
     def __init__(self, nb, nb_premier):
-        if nb >= nb_premier or nb<0:
+        if nb and (nb >= nb_premier or nb<0):
             error = str(nb)+" n'est pas dans le corps (entre 0 et "+str(nb_premier -1)+")"
             raise ValueError(error)
         self.nb = nb
         self.nb_premier = nb_premier
+
 
     def __repr__(self):
         return str((self.nb,self.nb_premier))
@@ -37,9 +38,10 @@ class CorpsFini:
         nb = (self.nb * other.nb) % self.nb_premier
         return self.__class__(nb, self.nb_premier)
 
-    def __pow__(self, exposant):
-        nb = (self.nb **exposant) % self.nb_premier
+    def __rmul__(self, other):
+        nb = (self.nb * other) % self.nb_premier
         return self.__class__(nb, self.nb_premier)
+
 
     def __truediv__(self, other):
         '''Fait la division flottante entre a et b : a/b, de toute manière
