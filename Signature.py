@@ -8,3 +8,5 @@ class Signature:
 
     def __repr__(self):
         return "Signature ("+str(r)+", "+str(s)+')'
+    
+    #Vérification de la signature à faire ici

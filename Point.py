@@ -13,14 +13,13 @@ class Point:
         self.id = Point(None,None,a,b)
 
         #vérifier que (x,y) est sur la courbe
-        if y*3!=x**2+a*x+b:
+        if y**2!=x**3+a*x+b:
             raise ValueError("le point n'est pas sur la courbe.")
     
     def __eq__(self,other):
         return self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b
 
     def __add__(self,other_point):
-        #0eme cas : les deux ne sont pas sur la même courbe, à faire quand mael aura fait la classe
 
 
         #1er cas l'un des deux est l'identité

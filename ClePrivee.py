@@ -1,8 +1,11 @@
 from random import randint
+import CorpsFini as CP
+import Point as P
 
 class ClePrivee:
     ###### à mettre chez le corps fini comme variable globale
     PREMIER = 512
+    SIZE=64
 
     #Attributs : e, le secret
 
@@ -11,17 +14,40 @@ class ClePrivee:
         self.point = e * G ##P = eG
 
     def hex(self):
-        return e.zfill(64)
+        return e.zfill(SIZE)
 
     def signer(self, z):
         ####---------------------------------------------
         ## Déterminer un meilleur moyen d'avoir k
         ###----------------------------------------------
         ######RENDRE K UNIQUE, cf la suite
-        k = randint(0, 2**PREMIER)
+        k = self.determinerK(z)
         r = (k*G).x.nb
         k_inverse = pow(k, PREMIER-2, PREMIER)
         s = ((z+r*self.e)*k_inverse) % PREMIER
         if s > PREMIER/2:
             s = PREMIER - s
         return Signature(r, s)
+  
+    def determinerK(self, z):
+        k = b'\x00' * SIZE
+        v = b'\x01' * SIZE
+        if z > PREMIER:
+            z -= PREMIER
+        z_bytes = z.to_bytes(SIZE, 'big')
+        e_bytes = self.e.to_bytes(SIZE, 'big')
+        s256 = hashlib.sha256
+        #double hash sha256 pour obtenir un k,v aléatoire
+        k = hmac.new(k, v + b'\x00' + e_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        k = hmac.new(k, v + b'\x01' + e_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        while True:
+            v = hmac.new(k, v, s256).digest()
+            candidat = int.from_bytes(v, 'big')
+            if candidat >= 1 and candidat < PREMIER:
+                return candidat
+            k = hmac.new(k, v + b'\x00', s256).digest()
+            v = hmac.new(k, v, s256).digest()
+
+
