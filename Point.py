@@ -63,3 +63,11 @@ class Point:
         for i in range(scalaire):
             resultat += self
         return resultat
+    
+    def ordre_point():
+        cur_point = self
+        nb = 1
+        while not (cur_point == Point(None,None,self.CE)):
+            cur_point += self
+            nb += 1
+        return nb 

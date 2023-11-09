@@ -1,19 +1,11 @@
 from random import randint
 from Point import Point
 from CourbeElliptique import CourbeElliptique
-def ordre_point(point):
-    cur_point = point
-    nb = 1
-    while not (cur_point == Point(None,None,point.CE)):
-        cur_point += point
-        nb += 1
-    return nb 
-
 class ClePrivee:
     ###### à mettre chez le corps fini comme variable globales
     PREMIER = 512
     G = Point(15,86,CourbeElliptique(0,7,223)) #A définir
-    N = ordre_point(G) #A definir, ordre du point dans la courbe
+    N = G.ordre_point() #A definir, ordre du point dans la courbe
     print(N)
     #Attributs : e, le secret
 
