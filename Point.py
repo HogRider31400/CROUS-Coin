@@ -64,7 +64,7 @@ class Point:
             resultat += self
         return resultat
     
-    def ordre_point():
+    def ordre_point(self):
         cur_point = self
         nb = 1
         while not (cur_point == Point(None,None,self.CE)):

@@ -4,9 +4,8 @@ from CourbeElliptique import CourbeElliptique
 class ClePrivee:
     ###### à mettre chez le corps fini comme variable globales
     PREMIER = 512
-    G = Point(15,86,CourbeElliptique(0,7,223)) #A définir
-    N = G.ordre_point() #A definir, ordre du point dans la courbe
-    print(N)
+    G = Point(15,86,CourbeElliptique(0,7,223))
+    N = G.ordre_point()
     #Attributs : e, le secret
 
     def __init__(self, e):
