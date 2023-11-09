@@ -1,37 +1,30 @@
-import CorpsFini
-
+from CorpsFini import CorpsFini
+from CourbeElliptique import CourbeElliptique
 class Point:
-    
+    CE = CourbeElliptique(0,7,223)
     #potentiellement remplacer a et b par la courbe elliptique
-    def __init__(self,x,y,a,b,nb_premier):
-        if not type(a) is CorpsFini.CorpsFini:
-            self.a = CorpsFini.CorpsFini(a,nb_premier)
-        else:
-            self.a = a
-        if not type(b) is CorpsFini.CorpsFini:
-            self.b = CorpsFini.CorpsFini(b,nb_premier)
-        else:
-            self.b = b
-        self.nb_premier = nb_premier
-        if not type(x) is CorpsFini.CorpsFini:
-            self.x = CorpsFini.CorpsFini(x,nb_premier)
+    def __init__(self,x,y,CE=None):
+        if CE and self.CE != CE:
+            self.CE = CE
+        if not type(x) is CorpsFini:
+            self.x = CorpsFini(x,self.CE.nb_premier)
         else:
             self.x = x
-        if not type(y) is CorpsFini.CorpsFini:
-            self.y = CorpsFini.CorpsFini(y,nb_premier)
+        if not type(y) is CorpsFini:
+            self.y = CorpsFini(y,self.CE.nb_premier)
         else:
             self.y = y
 
         if x is None and y is None:
             return
-        self.id = Point(None,None,a,b,self.nb_premier)
+        self.id = Point(None,None,self.CE)
 
         #vérifier que (x,y) est sur la courbe
-        if self.y**2!=self.x**3+self.a*self.x+self.b:
+        if not self.CE.on_curve(self):
             raise ValueError("le point n'est pas sur la courbe.")
     
     def __eq__(self,other):
-        return self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b
+        return self.x == other.x and self.y == other.y and self.CE == other.CE
 
 
     def __add__(self,other_point):
@@ -53,7 +46,7 @@ class Point:
             slope = (other_point.y - self.y)/(other_point.x-self.x)
             new_x = slope**2 - self.x - other_point.x
             new_y = slope*(self.x-new_x) - self.y
-            return Point(new_x,new_y,self.a.nb,self.b.nb,self.nb_premier)
+            return Point(new_x,new_y,self.CE)
         
         #4eme cas les points sont égaux et la slope est en +inf
         if self==other_point and self.y == 0*self.x:
@@ -61,13 +54,13 @@ class Point:
         
         #5eme cas les points sont égaux mais y'a une slope
         if self==other_point:
-            slope = (3*self.x**2 + self.a)/(2*self.y)
+            slope = (3*self.x**2 + self.CE.a)/(2*self.y)
             new_x = slope**2 - 2*self.x
             new_y = slope*(self.x-new_x) - self.y
-            return Point(new_x,new_y,self.a.nb,self.b.nb,self.nb_premier)
+            return Point(new_x,new_y,self.CE)
     
     def __rmul__(self,scalaire):
-        resultat = Point(None,None,self.a.nb,self.b.nb,self.nb_premier)
+        resultat = Point(None,None,self.CE)
         for i in range(scalaire):
             resultat += self
         return resultat
