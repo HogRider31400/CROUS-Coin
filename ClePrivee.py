@@ -1,5 +1,7 @@
 from Point import Point
 from CourbeElliptique import CourbeElliptique
+import hashlib
+import hmac
 
 class ClePrivee:
     ###### à mettre chez le corps fini comme variable globales
@@ -37,10 +39,12 @@ class ClePrivee:
         v = hmac.new(k, v, s256).digest()
         k = hmac.new(k, v + b'\x01' + e_bytes + z_bytes, s256).digest()
         v = hmac.new(k, v, s256).digest()
-        while True:
+        trouve = False
+        while (not trouve):
             v = hmac.new(k, v, s256).digest()
             candidat = int.from_bytes(v, 'big')
             if candidat >= 1 and candidat < N:
-                return candidat
+                trouve = True
             k = hmac.new(k, v + b'\x00', s256).digest()
             v = hmac.new(k, v, s256).digest()
+        return candidat
