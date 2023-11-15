@@ -10,6 +10,6 @@ Sous
 # Collaborateurs
 CAUQUIL Diane
 DUCROS Alexandre
-LATOR-ROUBIN Maël
+LATOR-ROUBIN Mael
 
 # UE PROJET MIDL

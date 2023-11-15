@@ -32,7 +32,7 @@ class ClePrivee:
         z_bytes = z.to_bytes(SIZE, 'big')
         e_bytes = self.e.to_bytes(SIZE, 'big')
         s256 = hashlib.sha256
-        #double hash sha256 pour obtenir un k,v aléatoire
+        #double hash sha256 pour limiter la collision
         k = hmac.new(k, v + b'\x00' + e_bytes + z_bytes, s256).digest()
         v = hmac.new(k, v, s256).digest()
         k = hmac.new(k, v + b'\x01' + e_bytes + z_bytes, s256).digest()
