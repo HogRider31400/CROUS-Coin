@@ -1,14 +1,16 @@
 from Point import Point
 from CourbeElliptique import CourbeElliptique
+import hashlib
 
 class ClePrivee:
-    ###### à mettre chez le corps fini comme variable globales
-    PREMIER = 512
-    G = Point(15,86,CourbeElliptique(0,7,223))
-    N = G.ordre_point()
+==
+
     #Attributs : e, le secret
 
-    def __init__(self, e):
+    def __init__(self, e,G=Point(15,86,CourbeElliptique(0,7,223)),PREMIER=512,N=7):
+        self.G=G
+        self.PREMIER = PREMIER
+        self.N = N
         self.e = e
         self.point = e * G ##P = eG
 
@@ -16,6 +18,11 @@ class ClePrivee:
         return e.zfill(64)
 
     def signer(self, z):
+
+        #Coucou Diane c Alex qui a ajouté ça, à toid e le suppr
+        N = self.N
+        G = self.G
+
         k = self.determinerK(z)
         r = (k*G).x.nb
         k_inverse = pow(k, N-2, N)

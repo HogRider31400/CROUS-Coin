@@ -21,7 +21,7 @@ class Point:
 
         #vérifier que (x,y) est sur la courbe
         if not self.CE.on_curve(self):
-            raise ValueError("le point n'est pas sur la courbe.")
+            raise ValueError("le point n'est pas sur la courbe.",self.y**2,self.x**3+CE.a*self.x+CE.b)
 
     def __eq__(self,other):
         return self.x == other.x and self.y == other.y and self.CE == other.CE
@@ -50,18 +50,29 @@ class Point:
         #4eme cas les points sont égaux et la slope est en +inf
         if self==other_point and self.y == 0*self.x:
             return self.id
-
+        print("y")
         #5eme cas les points sont égaux mais y'a une slope
         if self==other_point:
+            print("b")
             slope = (3*self.x**2 + self.CE.a)/(2*self.y)
+            print("b")
             new_x = slope**2 - 2*self.x
             new_y = slope*(self.x-new_x) - self.y
             return Point(new_x,new_y,self.CE)
 
     def __rmul__(self,scalaire):
         resultat = Point(None,None,self.CE)
-        for i in range(scalaire):
-            resultat += self
+        current = self
+        coef = scalaire
+        while coef:
+            print(coef)
+            if coef & 1:
+                print("youp")
+                resultat += current
+            print("yap")
+            current += current
+            print("yp")
+            coef >>= 1
         return resultat
     def ordre_point(self):
         cur_point = self

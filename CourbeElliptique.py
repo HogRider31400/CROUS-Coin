@@ -13,9 +13,9 @@ class CourbeElliptique:
             self.b = b
         self.nb_premier = nb_premier
     
+    def __repr__(self):
+        return str((self.a,self.b,self.nb_premier))
     def __eq__(self,other):
         return self.a==other.a and self.b == other.b and self.nb_premier==other.nb_premier
     def on_curve(self,point):
         return point.y**2==point.x**3+self.a*point.x+self.b
-    def calc(self,x):
-        return x**3+self.a*point.x+self.b
