@@ -51,7 +51,8 @@ class ClePrivee:
         v = hmac.new(k, v, s256).digest()
         k = hmac.new(k, v + b'\x01' + e_bytes + z_bytes, s256).digest()
         v = hmac.new(k, v, s256).digest()
-        while True:
+        trouve = False
+        while (not trouve):
             v = hmac.new(k, v, s256).digest()
             candidat = utils.get_int(v,N)
             if candidat >= 1 and candidat < self.PREMIER:
