@@ -5,7 +5,7 @@ import hashlib
 from Signature import Signature
 from ClePrivee import ClePrivee
 import unittest
-
+import utils
 class testSignature(unittest.TestCase):
 
     def setUp(self):
@@ -26,7 +26,7 @@ class testSignature(unittest.TestCase):
         z = 0xbc62d4b80d9e36da29c16c5d4d9f11731f36052c72401a76c23c0fb5a9b74423 #int.from_bytes(s256('sample'.encode('utf-8')).digest(), byteorder="big")
         self.assertTrue(S.verifier(z,G,N,P))
 
-    def testCourbeNIST192(self):
+    def testCourbeNIST192SV(self):
         CE = CourbeElliptique(0xfffffffffffffffffffffffffffffffefffffffffffffffc,0x64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1,0xfffffffffffffffffffffffffffffffeffffffffffffffff)
         G = Point(0x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012, 0x07192b95ffc8da78631011ed6b24cdd573f977a11e794811,CE)
         N = 0xffffffffffffffffffffffff99def836146bc9b1b4d22831 * 0x1
@@ -43,4 +43,19 @@ class testSignature(unittest.TestCase):
         z = int.from_bytes(s256('sample'.encode('utf-8')).digest(), byteorder="big") % N
 
         S = SK.signer(z)
+        self.assertTrue(S.verifier(z,G,N,P))
+
+    def testCourbeNIST192JV(self):
+        CE = CourbeElliptique(0xfffffffffffffffffffffffffffffffefffffffffffffffc,0x64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1,0xfffffffffffffffffffffffffffffffeffffffffffffffff)
+        G = Point(0x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012, 0x07192b95ffc8da78631011ed6b24cdd573f977a11e794811,CE)
+        N = 0xffffffffffffffffffffffff99def836146bc9b1b4d22831 * 0x1
+
+        
+        P = Point(0xAC2C77F529F91689FEA0EA5EFEC7F210D8EEA0B9E047ED56,0x3BC723E57670BD4887EBC732C523063D0A7C957BC97C1C43,CE)
+
+        s256 = hashlib.sha224
+
+        zh = s256('sample'.encode('utf-8')).digest()
+        z = utils.get_int(zh,N)
+        S = Signature(0xA1F00DAD97AEEC91C95585F36200C65F3C01812AA60378F5,0xE07EC1304C7C6C9DEBBE980B9692668F81D4DE7922A0F97A)
         self.assertTrue(S.verifier(z,G,N,P))

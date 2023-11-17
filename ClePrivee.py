@@ -3,7 +3,7 @@ from CourbeElliptique import CourbeElliptique
 import hashlib
 import hmac
 from Signature import Signature
-
+import utils
 class ClePrivee:
 
     #Attributs : e, le secret
@@ -38,7 +38,7 @@ class ClePrivee:
         N = self.N
         G = self.G
 
-        SIZE = 24
+        SIZE = N.bit_length()//8
         k = b'\x00' * SIZE
         v = b'\x01' * SIZE
         if z > N:
@@ -53,9 +53,7 @@ class ClePrivee:
         v = hmac.new(k, v, s256).digest()
         while True:
             v = hmac.new(k, v, s256).digest()
-            if(len(v) > SIZE):
-                v = v[(SIZE-1):]
-            candidat = int.from_bytes(v)
+            candidat = utils.get_int(v,N)
             if candidat >= 1 and candidat < self.PREMIER:
                 return candidat
             k = hmac.new(k, v + b'\x00', s256).digest()
