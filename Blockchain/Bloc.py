@@ -4,7 +4,7 @@ Attributs
     previous_block_hash (donné à la création de l'objet)
     previous_block (retrouvé plus tard, possiblement pendant la création de l'objet)
     transactions : liste de transactions
-    pow_number (si None alors le bloc n'a pas encore été miné)
+    magic_number (si None alors le bloc n'a pas encore été miné)
 Méthodes :
     is_valid
     is_mined
@@ -17,4 +17,9 @@ Constructeurs :
 """
 
 class Bloc:
-    pass
+    def __init__(self):
+        pass
+
+    @classmethod
+    def from_text(cls,text):
+        return cls()

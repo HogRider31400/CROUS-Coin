@@ -7,11 +7,18 @@ Attributs :
     id_user_getting
     amount
     date
-    signature
+    signature (format de la signature un tuple (r,s,px,py))
 
 Méthodes : 
     Des getters et setter, pour le hash principalement et le reste why not
 """
 
+
 class Transaction:
-    pass
+    
+    def __init__(self):
+        pass
+
+    @classmethod
+    def from_text(cls,text):
+        return cls()

@@ -8,7 +8,7 @@ class ClePrivee:
 
     #Attributs : e, le secret
 
-    def __init__(self, e,G=Point(15,86,CourbeElliptique(0,7,223)),PREMIER=512,N=7,h=hashlib.sha256):
+    def __init__(self, e,G=Point(utils.generator_x,utils.generator_y,CourbeElliptique(*utils.courbe)),PREMIER=utils.prime_number,N=utils.order,h=hashlib.sha256):
         self.G=G
         self.PREMIER = PREMIER
         self.N = N
