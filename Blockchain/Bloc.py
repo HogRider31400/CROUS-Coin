@@ -19,6 +19,9 @@ Constructeurs :
 import json
 import hashlib
 
+SIZE = 32
+SIZE_TARGET = 3
+
 class Bloc:
 
     def __init__(self, previous_block, transactions):
@@ -26,21 +29,24 @@ class Bloc:
         self.transactions=transactions
         self.timestamp = None
         self.pow_number = None
-
-    def get_block_hash(self):
-        return self.previous_block
         
-    """def get_block_hash(self):
-        h=hashlib.sha256
-
+    def get_block_hash(self):
+        h=hashlib.sha256()
         if self.pow_number==None:
             return -1
-        
-        transactions_bytes=0
-        for transaction in self.transactions:
-            transactions_bytes
-    """
+        h.update(self.get_block_text().to_bytes(SIZE, "big"))
+        return h.digest()
+
+    def set_pow_number(self, new_pow_number):
+        self.pow_number=new_pow_number
+
+    def is_mined(self):
+        hash = self.get_block_hash()
+        return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
+    def get_block_text(self):
+        pass
+
     @classmethod
     def from_text(cls,text):
         bloc_data = json.loads(text)
