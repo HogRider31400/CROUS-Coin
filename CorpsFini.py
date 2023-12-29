@@ -49,8 +49,8 @@ class CorpsFini:
         self.primeValid(other)
         if (other.nb == 0):
             raise ZeroDivisionError("le diviseur doit être non nul")
-        ##Calcul de l'inverse : b^(-1) = b^(nb_premier-2)
-        inverse_op2 = (other.nb ** ((other.nb_premier)-2))%self.nb_premier
+        ##Calcul de l'inverse : b^(-1) = b^(nb_premier-2). ALEX A MODIFIE LE ** EN POW, A MODIFIER SI ENVIE
+        inverse_op2 = pow(other.nb,other.nb_premier-2,self.nb_premier)
         return self * self.__class__(inverse_op2, self.nb_premier)
 
     def __pow__(self, exposant):
