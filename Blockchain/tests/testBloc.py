@@ -8,6 +8,7 @@ import unittest
 example_block = """
         {
             "previous_block_hash" : "aopziejazeokhazeazeaze",
+            "timestamp" : 19783097830983,
             "transactions" : [
                 " : A -> B = 10 (27/12/2023-20:03) SIG=(1,2,3,4)"
             ],
@@ -17,6 +18,7 @@ example_block = """
 example_block2 = """
         {
             "previous_block_hash" : "aopziejazeokhazeazeaze",
+            "timestamp" : 19783097830984,
             "transactions" : [
                 " : A -> B = 10 (27/12/2023-20:03) SIG=(1,2,3,4)"
             ],

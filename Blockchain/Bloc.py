@@ -3,8 +3,9 @@ Classe Bloc :
 Attributs
     previous_block_hash (donné à la création de l'objet)
     previous_block (retrouvé plus tard, possiblement pendant la création de l'objet)
+    timestamp : moment où le bloc a été miné
     transactions : liste de transactions
-    magic_number (si None alors le bloc n'a pas encore été miné)
+    pow_number (si None alors le bloc n'a pas encore été miné)
 Méthodes :
     is_valid
     is_mined
@@ -16,10 +17,23 @@ Constructeurs :
     Soit il prend un fichier texte à parse dans le format du bloc
 """
 
+import json
+
 class Bloc:
     def __init__(self):
         pass
 
     @classmethod
     def from_text(cls,text):
-        return cls()
+        bloc_data = json.loads(text)
+
+        previous_block_hash = bloc_data["previous_block_hash"]
+        timestamp = bloc_data["timestamp"]
+        transactions_data = bloc_data["transactions"]
+        transactions = []
+        for cur_trans in transactions_data:
+            transactions.append(Transaction.from_text(cur_trans))
+        pow_number = bloc_data["pow_number"]
+
+
+        return cls(previous_block_hash,timestamp,transactions,pow_number)
