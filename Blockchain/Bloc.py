@@ -2,7 +2,7 @@
 Classe Bloc :
 Attributs
     previous_block_hash (donné à la création de l'objet)
-    timestamp : moment où le bloc a été miné, initialisé null
+    timestamp : moment où le bloc est certifié valide/complet
     transactions : liste de transactions
     pow_number (si None alors le bloc n'a pas encore été miné)
 Méthodes :
@@ -10,7 +10,7 @@ Méthodes :
     is_mined
     get_block_hash
     get_block_text (donne le bloc sous adaptée pour le stocker)
-    et pourquoi pas des setter et des getter autres
+    add_transaction: ajoute une transaction dans la limite fixée
 Constructeurs :
     Soit un qui prend le prev hash, les transactions (déjà parsés) et un nombre
     Soit il prend un fichier texte à parse dans le format du bloc
@@ -18,9 +18,12 @@ Constructeurs :
 
 import json
 import hashlib
+import time
+import Transaction
 
 SIZE = 32
 SIZE_TARGET = 3
+NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
 
@@ -42,9 +45,26 @@ class Bloc:
 
     def is_mined(self):
         hash = self.get_block_hash()
-        return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
+        return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET:
     
+    def add_transaction(self, transaction):
+        if self.transactions.len()<NB_MAX_TRANSACTIONS:
+            self.transactions.append(transaction)
+        else:
+            print("Nombre max de transactions atteint.")
     
+    """
+        il faut rajouter les vérifications des tx dans le utxo + la vérification du bloc précédent.
+    """
+    def is_valid(self):
+        for transaction in self.transactions:
+            if not transaction.verifier():
+                return False
+        if not self.is_mined():
+            return False
+        self.timestamp = time.time()
+        return True
+
     def get_block_text(self):
         pass
 
