@@ -11,6 +11,7 @@ Méthodes :
     get_block_hash
     get_block_text (donne le bloc sous adaptée pour le stocker)
     add_transaction: ajoute une transaction dans la limite fixée
+    fill_block rempli
 Constructeurs :
     Soit un qui prend le prev hash, les transactions (déjà parsés) et un nombre
     Soit il prend un fichier texte à parse dans le format du bloc
@@ -45,7 +46,7 @@ class Bloc:
 
     def is_mined(self):
         hash = self.get_block_hash()
-        return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET:
+        return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
     def add_transaction(self, transaction):
         if self.transactions.len()<NB_MAX_TRANSACTIONS:
@@ -64,6 +65,17 @@ class Bloc:
             return False
         self.timestamp = time.time()
         return True
+
+    def __repr__(self):
+        output=""
+        output.append("BLOC \n")
+        output.append("Previous bloc hash: " + self.previous_block + "\n")
+        output.append("Transactions: \n")
+        for transaction in self.transactions:
+            output.append(transaction + "\n")
+        output.append("Timestamp: " + self.timestamp + "\n")
+        output.append("Proof of work: " + self.pow_number + "\n")
+        return output
 
     def get_block_text(self):
         pass
