@@ -39,14 +39,19 @@ class Transaction:
         nbInputs += len(newInputs)
 
     def enleverInputs(delInputs):
+        trouve = False
         result = []
         for oldInput in delInputs:
-            for i in range(nbInputs):
+            i=0
+            while (i<nbInputs and not trouve):
                 if (inputs[i] == oldInput):
                     del inputs[i]
-                    nbInputs-=1
+                    trouve = True
                     result.append(True)
-            result.append(False)
+                i+=1
+            if (not trouve):
+                result.append(False)
+                trouve = False
         return result
 
     def ajouterOutputs(newOutputs):
@@ -57,13 +62,19 @@ class Transaction:
         nbOutputs += len(newOutputs)
 
     def enleverOutputs(delOutputs):
+        trouve = False
         result = []
         for output in delOutputs:
-            for i in range(nbOutputs):
+            i=0
+            while (i<nbOutputs and not trouve):
                 if (outputs[i] == output):
                     del outputs[i]
+                    trouve = True
                     result.append(True)
-            result.append(False)
+                i+=1
+            if (not trouve):
+                result.append(False)
+                trouve = False
         return result
 
 
@@ -80,7 +91,8 @@ class Transaction:
     ##Vérification
 
     def verifier():
-        sommePositive()
+        #Ajouter vérification avec UTXO set et l'histoire des clés ? (vérifier les signatures ???)
+        return sommePositive()
 
     def sommePositive():
         sommeI = 0
