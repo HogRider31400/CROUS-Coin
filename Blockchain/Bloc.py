@@ -24,11 +24,11 @@ SIZE_TARGET = 3
 
 class Bloc:
 
-    def __init__(self, previous_block, transactions):
+    def __init__(self, previous_block, transactions, timestamp=None, pow_number=None):
         self.previous_block=previous_block
         self.transactions=transactions
-        self.timestamp = None
-        self.pow_number = None
+        self.timestamp = timestamp
+        self.pow_number = pow_number
         
     def get_block_hash(self):
         h=hashlib.sha256()
@@ -43,6 +43,7 @@ class Bloc:
     def is_mined(self):
         hash = self.get_block_hash()
         return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
+    
     
     def get_block_text(self):
         pass
