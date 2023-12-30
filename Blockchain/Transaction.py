@@ -4,17 +4,17 @@ import time
 class Transaction:
 
     #Attributs : horodatage, inputs, outputs
-    inputs = []
+    outputs = []
 
-    ##Une input est de la forme : (adresseDepenseur,montant,signatureReceveur)
-    ##Une output est de la forme : (adresseReceveur,montant,signatureDepenseur)
+    ##Une input est de la forme : {acheteur:...(adresse),montant:...,sigVendeur:...(signature)}
+    ##Une output est de la forme : {vendeur:...,montant:...,sigAcheteur:...}
 
     #S'ASSURER QUE LES INPUTS VIENNENT BIEN TOUTES DE L'UTXO SET
 
-    def __init__(self, input1):
+    def __init__(self, output):
         self.horodatage = time.time()
-        self.inputs.append(input1) #chaque transaction amène forcément de l'argent
-        self.outputs = []
+        self.inputs = []
+        self.outputs.append(output) #chaque transaction donne forcément de l'argent à quelqu'un
         self.nbInputs = 1
         self.nbOutputs = 0
 
@@ -36,7 +36,7 @@ class Transaction:
         dans les inputs de la transaction'''
         ##vérifier que dans l'UTXO set
         inputs = inputs + newInputs
-        nbInputs += newInputs.length()
+        nbInputs += len(newInputs)
 
     def enleverInputs(delInputs):
         result = []
@@ -44,6 +44,7 @@ class Transaction:
             for i in range(nbInputs):
                 if (inputs[i] == oldInput):
                     del inputs[i]
+                    nbInputs-=1
                     result.append(True)
             result.append(False)
         return result
@@ -56,6 +57,7 @@ class Transaction:
         nbOutputs += len(newOutputs)
 
     def enleverOutputs(delOutputs):
+        result = []
         for output in delOutputs:
             for i in range(nbOutputs):
                 if (outputs[i] == output):
@@ -73,6 +75,21 @@ class Transaction:
         if (bills.length()!=0):
             bills = bills[:-1]
         return bills
+
+
+    ##Vérification
+
+    def verifier():
+        sommePositive()
+
+    def sommePositive():
+        sommeI = 0
+        sommeO = 0
+        for billI in inputs:
+            sommeI += billI["montant"]
+        for billO in outputs:
+            sommeO += billO["montant"]
+        return sommeI >= sommeO
 
     ##Getteurs
     #Pas de set sur l'horodatage pour éviter les fraudes
