@@ -11,12 +11,12 @@ class Transaction:
 
     #S'ASSURER QUE LES INPUTS VIENNENT BIEN TOUTES DE L'UTXO SET
 
-    def __init__(self, output):
+    def __init__(self, inputs, outputs):
         self.horodatage = time.time()
-        self.inputs = []
-        self.outputs.append(output) #chaque transaction donne forcément de l'argent à quelqu'un
-        self.nbInputs = 1
-        self.nbOutputs = 0
+        self.inputs = inputs
+        self.outputs = outputs
+        self.nbInputs = len(inputs)
+        self.nbOutputs = len(outputs)
 
     @classmethod
     def from_text(cls,text):
@@ -87,6 +87,14 @@ class Transaction:
             bills = bills[:-1]
         return bills
 
+    def differenceIO():
+        sommeI = 0
+        sommeO = 0
+        for billI in inputs:
+            sommeI += billI["montant"]
+        for billO in outputs:
+            sommeO += billO["montant"]
+        return sommeI - sommeO
 
     ##Vérification
 
@@ -95,13 +103,8 @@ class Transaction:
         return sommePositive()
 
     def sommePositive():
-        sommeI = 0
-        sommeO = 0
-        for billI in inputs:
-            sommeI += billI["montant"]
-        for billO in outputs:
-            sommeO += billO["montant"]
-        return sommeI >= sommeO
+        return differenceIO()>=0
+
 
     ##Getteurs
     #Pas de set sur l'horodatage pour éviter les fraudes
@@ -114,3 +117,11 @@ class Transaction:
 
     def getOutputs():
         return outputs
+
+    def setInputs(newInputs):
+        inputs = newInputs
+        nbInputs = len(newInputs)
+
+    def setOutputs(newOutputs):
+        outputs = newOutputs
+        nbOutputs = len(newOutputs)
