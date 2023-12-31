@@ -84,7 +84,32 @@ class Bloc:
         return somme
 
     def get_block_text(self):
-        pass
+        
+        tx_list_data = []
+
+        for tx in self.transactions:
+            tx_list_data.append(
+                {
+                    "horodatage" : tx.getHorodatage(),
+                    "inputs" : tx.getInputs(),
+                    "outputs" : tx.getOutputs()
+                }
+            )
+
+
+        block_data = {
+            "previous_block_hash" : self.previous_block,
+            "timestamp" : self.timestamp,
+            "transactions" : tx_list_data,
+            "pow_number" : self.pow_number
+        }
+
+        return json.dumps(block_data)
+    
+    def save(self):
+
+        with open("./blocs/"+self.get_block_hash(),"w") as f:
+            f.write(self.get_block_text())
 
     @classmethod
     def from_text(cls,text):
@@ -99,4 +124,4 @@ class Bloc:
         pow_number = bloc_data["pow_number"]
 
 
-        return cls(previous_block_hash,timestamp,transactions,pow_number)
+        return cls(previous_block_hash,transactions,timestamp,pow_number)
