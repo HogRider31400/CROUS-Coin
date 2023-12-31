@@ -49,7 +49,7 @@ class Bloc:
         return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
     def add_transaction(self, transaction):
-        if self.transactions.len()<NB_MAX_TRANSACTIONS:
+        if len(self.transactions)<NB_MAX_TRANSACTIONS:
             self.transactions.append(transaction)
         else:
             print("Nombre max de transactions atteint.")
@@ -76,6 +76,12 @@ class Bloc:
         output.append("Timestamp: " + self.timestamp + "\n")
         output.append("Proof of work: " + self.pow_number + "\n")
         return output
+    
+    def get_letfovers(self):
+        somme=0
+        for transaction in self.transactions:
+            somme+=transaction.differenceIO()
+        return somme
 
     def get_block_text(self):
         pass
