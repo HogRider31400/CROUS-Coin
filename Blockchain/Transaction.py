@@ -1,5 +1,8 @@
 import json
 import time
+import sys
+sys.path.append("..")
+from Signature import Signature
 
 class Transaction:
 
@@ -100,10 +103,26 @@ class Transaction:
 
     def verifier():
         #Ajouter vérification avec UTXO set et l'histoire des clés ? (vérifier les signatures ???)
-        return sommePositive()
+        return sommePositive() and verifierSignatures()
 
     def sommePositive():
         return differenceIO()>=0
+
+    def verifierSignatures():
+        return verifierSigInputs() and verifierSigOutputs()
+
+    def verifierSigInputs():
+        valide = True
+        for bill in inputs:
+            valide = valide and bill["sigVendeur"].verifier()
+        return valide
+
+    def verifierSigOutputs():
+        valide = True
+        for bill in outputs:
+            valide = valide and bill["sigAcheteur"].verifier()
+        return valide
+
 
 
     ##Getteurs
