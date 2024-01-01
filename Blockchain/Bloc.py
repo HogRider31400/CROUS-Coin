@@ -49,7 +49,7 @@ class Bloc:
         return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
     def add_transaction(self, transaction):
-        if self.transactions.len()<NB_MAX_TRANSACTIONS:
+        if len(self.transactions)<NB_MAX_TRANSACTIONS:
             self.transactions.append(transaction)
         else:
             print("Nombre max de transactions atteint.")
@@ -76,9 +76,40 @@ class Bloc:
         output.append("Timestamp: " + self.timestamp + "\n")
         output.append("Proof of work: " + self.pow_number + "\n")
         return output
+    
+    def get_letfovers(self):
+        somme=0
+        for transaction in self.transactions:
+            somme+=transaction.differenceIO()
+        return somme
 
     def get_block_text(self):
-        pass
+        
+        tx_list_data = []
+
+        for tx in self.transactions:
+            tx_list_data.append(
+                {
+                    "horodatage" : tx.getHorodatage(),
+                    "inputs" : tx.getInputs(),
+                    "outputs" : tx.getOutputs()
+                }
+            )
+
+
+        block_data = {
+            "previous_block_hash" : self.previous_block,
+            "timestamp" : self.timestamp,
+            "transactions" : tx_list_data,
+            "pow_number" : self.pow_number
+        }
+
+        return json.dumps(block_data)
+    
+    def save(self):
+
+        with open("./blocs/"+self.get_block_hash(),"w") as f:
+            f.write(self.get_block_text())
 
     @classmethod
     def from_text(cls,text):
@@ -93,4 +124,4 @@ class Bloc:
         pow_number = bloc_data["pow_number"]
 
 
-        return cls(previous_block_hash,timestamp,transactions,pow_number)
+        return cls(previous_block_hash,transactions,timestamp,pow_number)

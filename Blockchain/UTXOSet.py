@@ -64,14 +64,16 @@ class UTXOSet:
             next_block_content = f.read()
         next_block_data = json.loads(next_block_content)
 
+        self.current_block_hash = next_block_hash
+
         for transaction in next_block_data["transactions"]:
             success = try_update_tree(transaction)
             if not success:
                 print("Block", next_block_hash ,"is not OK, current block is still",self.current_block_hash)
+                self.rollback()
                 return False
 
 
-        self.current_block_hash = next_block_hash
         return True
     
     def update_all(self):
@@ -101,8 +103,50 @@ class UTXOSet:
                 return False # duplication de signature en output, il y a eu une erreur de transmission 
                              #ou le vendeur essaye d'enfler l'acheteur
         self.arbre = copie_arbre
+        self._update_registre(transaction)
         return True
     
+    def _update_registre(self,transaction):
+
+        #Méthode "interne", on part du principe qu'elle est appelée que dans update_tree et jamais de l'extérieur
+        #Donc les données de "transaction" sont valides et il ne devrait y avoir aucune erreur lors de la mise à jour du registre
+
+
+        # Partie 1 : on enlève les éléments dans l'input
+        for cur_input in transaction["inputs"]:
+            del registre["sig"][cur_input["sigVendeur"]]
+
+            registre["user"][cur_input["vendeur"]].remove(cur_input)
+            if(len(registre["user"][cur_input["vendeur"]]) == 0):
+                del registre["user"][cur_input["vendeur"]]
+            registre["user"][self.current_block_hash].remove(cur_input)
+        
+        #Partie 2 : on ajoute les nouveaux
+        for cur_output in transaction["outputs"]
+            registre["sig"][cur_input["sigAcheteur"]] = cur_output
+            if not cur_input["acheteur"] in registre["user"]:
+                registre["user"][cur_input["acheteur"]] = []
+            registre["user"][cur_input["acheteur"]].append(cur_output)
+            if not self.current_block_hash in registre["block_hash"]:
+                registre["block_hash"][self.current_block_hash] = []
+            registre["block_hash"][self.current_block_hash].append(cur_output)
+            #TODO : partie block_hash
+
+    def is_spent(self,sig):
+        if sig in registre["sig"]:
+            return False
+        return True
+    
+    def get_user_utxos(self,user):
+        if user in registre["user"]:
+            return registre["user"][user]
+        return []
+
+    def get_block_utxos(self,block_hash):
+        if block_hash in registre["block_hash"]:
+            return registre["block_hash"][block_hash]
+        return []
+
     def try_update_tree(self,transaction):
         update_success = self.update_tree(transaction)
         return update_success

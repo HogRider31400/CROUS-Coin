@@ -14,7 +14,7 @@ class Transaction:
 
     #S'ASSURER QUE LES INPUTS VIENNENT BIEN TOUTES DE L'UTXO SET
 
-    def __init__(self, inputs, outputs):
+    def __init__(self,inputs, outputs):
         self.horodatage = time.time()
         self.inputs = inputs
         self.outputs = outputs
