@@ -9,12 +9,12 @@ class Transaction:
     #Attributs : horodatage, inputs, outputs
     outputs = []
 
-    ##Une input est de la forme : {vendeur:...(adresse),montant:...,sigVendeur:...(signature)}
-    ##Une output est de la forme : {acheteur:...,montant:...,sigAcheteur:...}
+    ##Une input est de la forme : {acheteur:...(adresse),montant:...,sigVendeur:...(signature)} #pas le même vendeur que la ligne d'au dessous
+    ##Une output est de la forme : {vendeur:...,montant:...,sigAcheteur:...}
 
     #S'ASSURER QUE LES INPUTS VIENNENT BIEN TOUTES DE L'UTXO SET
 
-    def __init__(self, inputs, outputs):
+    def __init__(self,inputs, outputs):
         self.horodatage = time.time()
         self.inputs = inputs
         self.outputs = outputs
