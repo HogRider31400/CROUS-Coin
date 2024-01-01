@@ -9,8 +9,8 @@ class Transaction:
     #Attributs : horodatage, inputs, outputs
     outputs = []
 
-    ##Une input est de la forme : {acheteur:...(adresse),montant:...,sigVendeur:...(signature)}
-    ##Une output est de la forme : {vendeur:...,montant:...,sigAcheteur:...}
+    ##Une input est de la forme : {acheteur:...(adresse),montant:...,sigVendeur:...(signature),cleVendeur:...(Px,Py)}
+    ##Une output est de la forme : {vendeur:...,montant:...,sigAcheteur:...,cleAcheteur:...(Px,Py)}
 
     #S'ASSURER QUE LES INPUTS VIENNENT BIEN TOUTES DE L'UTXO SET
 
@@ -85,7 +85,7 @@ class Transaction:
         '''Permet d'afficher un tableau d'entrées ou de sorties'''
         bills = ""
         for bill in tabIO:
-            bills += bill.toString()+','
+            bills += str(bill)+','
         if (bills.length()!=0):
             bills = bills[:-1]
         return bills
