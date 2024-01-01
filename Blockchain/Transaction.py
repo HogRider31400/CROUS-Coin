@@ -8,7 +8,7 @@ from Signature import Signature
 from Point import Point
 
 N = order
-G = Point(generator_x,generator_y)
+G = Point(generator_x,generator_y,CourbeElliptique(*courbe))
 
 class Transaction:
 
@@ -47,11 +47,34 @@ class Transaction:
     def from_text(cls,text):
         bloc_data = json.loads(text)
 
-        self.horodatage = bloc_data["horodatage"]
-        self.inputs = bloc_data["inputs"]
-        self.outputs = bloc_data["outputs"]
+        horodatage = bloc_data["horodatage"]
+        adresse_acheteur = bloc_data["acheteur"]
+        inputs_data = bloc_data["inputs"]
+        inputs = []
 
-        return cls(self.horodatage,self.inputs,self.outputs)
+        for cur_input in inputs_data:
+
+            new_cur = cur_input
+
+            new_cur["cleAcheteur"] = Point(cur_input["cleAcheteur"][0],cur_input["cleAcheteur"][1],CourbeElliptique(*courbe))
+            new_cur["sigAcheteur"] = Signature(cur_input["sigAcheteur"][0],cur_input["sigAcheteur"][1])
+            inputs.append(new_cur)
+        
+        outputs_data = bloc_data["outputs"]
+        outputs = []
+
+        for cur_output in outputs_data:
+
+            new_cur = cur_output
+
+            new_cur["cleVendeur"] = Point(cur_input["cleVendeur"][0],cur_input["cleVendeur"][1],CourbeElliptique(*courbe))
+            new_cur["sigVendeur"] = Signature(cur_input["sigVendeur"][0],cur_input["sigVendeur"][1])
+            outputs.append(new_cur)
+
+
+        outputs = bloc_data["outputs"]
+
+        return cls(horodatage,inputs,outputs,adresse_acheteur)
 
     def __repr__(self):
         return "Transaction ("+self.horodatage+"-I:"+afficherIO(self.inputs)+"-O:"+afficherIO(self.outputs)+')'
