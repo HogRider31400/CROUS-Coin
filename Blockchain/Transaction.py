@@ -56,14 +56,14 @@ class Transaction:
     def __repr__(self):
         return "Transaction ("+self.horodatage+"-I:"+afficherIO(self.inputs)+"-O:"+afficherIO(self.outputs)+')'
 
-    def ajouterInputs(newInputs):
+    def ajouterInputs(self,newInputs):
         '''Entrée : prend un tableau d'inputs, (les vérifie une à une?) puis les ajoute
         dans les inputs de la transaction'''
         ##vérifier que dans l'UTXO set
         self.inputs = self.inputs + newInputs
         self.nbInputs += len(newInputs)
 
-    def enleverInputs(delInputs):
+    def enleverInputs(self,delInputs):
         trouve = False
         result = []
         for oldInput in delInputs:
@@ -79,14 +79,14 @@ class Transaction:
                 trouve = False
         return result
 
-    def ajouterOutputs(newOutputs):
+    def ajouterOutputs(self,newOutputs):
         '''Entrée : prend un tableau d'outputs, (les vérifie une à une?) puis les ajoute
         dans les outputs de la transaction'''
         ##vérifier que dans l'UTXO set
         self.outputs = self.outputs + newOutputs
         self.nbOutputs += len(newOutputs)
 
-    def enleverOutputs(delOutputs):
+    def enleverOutputs(self,delOutputs):
         trouve = False
         result = []
         for output in delOutputs:
@@ -103,7 +103,7 @@ class Transaction:
         return result
 
 
-    def afficherIO(tabIO):
+    def afficherIO(self,tabIO):
         '''Permet d'afficher un tableau d'entrées ou de sorties'''
         bills = ""
         for bill in tabIO:
@@ -112,7 +112,7 @@ class Transaction:
             bills = bills[:-1]
         return bills
 
-    def differenceIO():
+    def differenceIO(self):
         sommeI = 0
         sommeO = 0
         for billI in self.inputs:
@@ -123,57 +123,57 @@ class Transaction:
 
     ##Vérification
 
-    def verifier():
+    def verifier(self):
         #Ajouter vérification avec UTXO set et l'histoire des clés ? (vérifier les signatures ???)
         return sommePositive() and verifierSignatures()
 
-    def sommePositive():
+    def sommePositive(self):
         return differenceIO()>=0
 
-    def hasherMsg(msg):
-        zh = s256('sample'.encode('utf-8')).digest()
+    def hasherMsg(self,msg):
+        zh = s256(msg.encode('utf-8')).digest()
         z = utils.get_int(zh,N)
         return z
 
-    def verifierSignatures():
+    def verifierSignatures(self):
         return verifierSigInputs() and verifierSigOutputs()
 
-    def verifierSigInputs():
+    def verifierSigInputs(self):
         valide = True
         for bill in self.inputs:
             P = bill["cleVendeur"]
-            creerMsg(self.horodatage,bill["acheteur"],bill["montant"],self.adresseAcheteur)
+            creerMsg(self.horodatage,bill["montant"],self.adresseAcheteur)
             valide = valide and bill["sigVendeur"].verifier(hasherMsg(msg),G,N,P)
         return valide
 
-    def verifierSigOutputs():
+    def verifierSigOutputs(self):
         valide = True
         for bill in self.outputs:
             P = bill["cleAcheteur"]
-            creerMsg(self.horodatage,bill["vendeur"],bill["montant"],bill["vendeur"])
+            creerMsg(self.horodatage,bill["montant"],bill["vendeur"])
             valide = valide and bill["sigAcheteur"].verifier(hasherMsg(msg),G,N,P)
         return valide
 
-    def creerMsg(horodatage,montant,adresse):
-        return str(horodatage)+'#'+adresse+'#'+montant
+    def creerMsg(self,horodatage,montant,adresse):
+        return str(horodatage)+'#'+montant+'#'+adresse
 
 
     ##Getteurs
     #Pas de set sur l'horodatage pour éviter les fraudes
 
-    def getHorodatage():
+    def getHorodatage(self):
         return self.horodatage
 
-    def getInputs():
+    def getInputs(self):
         return self.inputs
 
-    def getOutputs():
+    def getOutputs(self):
         return self.outputs
 
-    def setInputs(newInputs):
+    def setInputs(self,newInputs):
         self.inputs = newInputs
         self.nbInputs = len(newInputs)
 
-    def setOutputs(newOutputs):
+    def setOutputs(self,newOutputs):
         self.outputs = newOutputs
         self.nbOutputs = len(newOutputs)
