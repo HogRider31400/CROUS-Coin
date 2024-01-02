@@ -153,6 +153,10 @@ class Transaction:
             valide = valide and verifierDansUtxoSet(bill["sigAcheteur"])
         return valide
 
+    def verifierCoinBaseTransaction():
+        return (len(self.inputs) == 0) and (len(self.outputs) == 1) and verifierSigOutputs()
+
+
     def verifierDansUtxoSet(self,sig):
         return utxo_set.is_spent(sig)
 
