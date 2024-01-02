@@ -22,12 +22,16 @@ import json
 import hashlib
 import time
 import Transaction
+import UTXOSet
 
 SIZE = 32
 SIZE_TARGET = 3
 NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
+
+    #static
+    UTXO = UTXOSet("")
 
     def __init__(self, previous_block, transactions, timestamp=None, pow_number=None):
         self.previous_block=previous_block
@@ -51,22 +55,25 @@ class Bloc:
         return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
     def add_transaction(self, transaction):
-        if len(self.transactions)<NB_MAX_TRANSACTIONS:
+        if len(self.transactions)<NB_MAX_TRANSACTIONS and self.timestamp!=None:
             self.transactions.append(transaction)
         else:
             print("Nombre max de transactions atteint.")
     
     """
-        il faut rajouter les vérifications des tx dans le utxo + la vérification du bloc précédent.
+        il faut rajouter la vérification du bloc précédent.
     """
     def is_valid(self):
-        for transaction in self.transactions:
-            if not transaction.verifier():
-                return False
+        self.maj_transactions()
         if not self.is_mined():
             return False
         self.timestamp = time.time()
         return True
+
+    def maj_transactions(self):
+        for transaction in self.transactions:
+            if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
+                self.transactions.remove(transaction)
 
     def __repr__(self):
         output=""
