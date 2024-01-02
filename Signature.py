@@ -17,4 +17,6 @@ class Signature:
         u = z*s_inverse%N
         v = self.r*s_inverse%N
         R = u*G + v*P
+        print("r trouve",R.x.nb)
+        print("r prevu",self.r)
         return R.x.nb == self.r

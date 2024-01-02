@@ -162,7 +162,6 @@ class Transaction:
         return sommeI - sommeO
     
     def creerMsg(self,horodatage,montant,adresse):
-        print(str(horodatage)+'#'+str(montant)+'#'+adresse)
         return str(horodatage)+'#'+str(montant)+'#'+adresse
 
     def verifierCoinBaseTransaction(self):
@@ -185,8 +184,10 @@ class Transaction:
     def verifierSigInputs(self):
         valide = True
         for bill in self.inputs:
+            print(bill)
             P = bill["cleAcheteur"]
             msg = self.creerMsg(self.horodatage,bill["montant"],self.adresseAcheteur)
+            print(bill["sigAcheteur"].verifier(self.hasherMsg(msg),G,N,P))
             valide = valide and bill["sigAcheteur"].verifier(self.hasherMsg(msg),G,N,P)
         return valide
 
@@ -200,8 +201,8 @@ class Transaction:
     
     def verifier(self):
         valide = self.sommePositive() and self.verifierSignatures()
-        for bill in self.inputs:
-            valide = valide and self.verifierDansUtxoSet(bill["sigAcheteur"])
+        #for bill in self.inputs:
+        #    valide = valide and self.verifierDansUtxoSet(bill["sigAcheteur"])
         return valide
 
 

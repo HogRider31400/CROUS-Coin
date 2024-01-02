@@ -8,7 +8,7 @@ class ClePrivee:
 
     #Attributs : e, le secret
 
-    def __init__(self, e,G=Point(utils.generator_x,utils.generator_y,CourbeElliptique(*utils.courbe)),PREMIER=utils.prime_number,N=utils.order,h=hashlib.sha256):
+    def __init__(self, e,G=Point(utils.generator_x,utils.generator_y,CourbeElliptique(*utils.courbe)),PREMIER=utils.prime_number,N=utils.order,h=hashlib.sha512):
         self.G=G
         self.PREMIER = PREMIER
         self.N = N
@@ -26,7 +26,7 @@ class ClePrivee:
         G = self.G
 
         k = self.determinerK(z)
-        r = (k*G).x.nb
+        r = (k*G).x.nb%N
         k_inverse = pow(k, N-2, N)
         s = ((z+r*self.e)*k_inverse) % N
         if s > N/2:
@@ -63,4 +63,5 @@ class ClePrivee:
 signature_pour_diane = ClePrivee(3)
 print(signature_pour_diane.point.get_coords())
 msg_zh = hashlib.sha512('3456789.232323#30#Bob'.encode('utf-8')).digest()
-print(signature_pour_diane.signer(utils.get_int(msg_zh,utils.order)).get_sig())
+z= utils.get_int(msg_zh,utils.order)
+print(signature_pour_diane.signer(z).get_sig())
