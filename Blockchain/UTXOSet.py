@@ -4,7 +4,7 @@ Classe UTXOSet
 
 Attributs :
     - arbre : l'arbre des transactions/sous-transactions, pour éviter de devoir charger trop de données il n'y a que les noeuds de surface/presque-surface qui seront gardés. Tout noeud complètement recouvert sera supprimé de l'arbre, l'arbre est la structure qui est utilisée pour maintenir à jour l'UTXO set et ne doit pas être accédé de l'extérieur
-    - registre : un dictionnaire décliné en 3 version : 
+    - registre : un dictionnaire décliné en 3 version :
         - une version sig où une signature amène vers l'utilisateur et le montant + l'id de transaction
         - une version user où il amène à la liste de tout ce que l'utilisateur a à disposition
         - une version block_hash qui à partir du hash d'un bloc permet de savoir ce qui est encore à disposition dans le bloc (optionnel à mon avis)
@@ -35,6 +35,7 @@ class UTXOSet:
             self.registre = {}
             self.current_block_hash = None
             self.update_all()
+            self.update_all()
         else:
             if type(texte) != dict:
                 set_data = json.loads(texte)
@@ -61,7 +62,7 @@ class UTXOSet:
         next_block_hash = self.get_next_block()
         if not (next_block_hash):
             return False
-        
+
         with open("./blocs/"+next_block_hash) as f:
             next_block_content = f.read()
         next_block_data = json.loads(next_block_content)
@@ -77,7 +78,7 @@ class UTXOSet:
 
 
         return True
-    
+
     def update_all(self):
         while self.update_next_block():
             print("Cur block is now ",self.current_block_hash)
@@ -96,18 +97,18 @@ class UTXOSet:
                 del copie_arbre[cur_input["sigAcheteur"]]
             else:
                 return False # ce n'est pas un utxo et n'a rien à faire en input
-        
+
         for cur_output in outputs:
             if cur_output["sigVendeur"] not in copie_arbre:
                 #TODO : mettre à jour le registre
                 copie_arbre[cur_output["sigVendeur"]] = cur_output
             else:
-                return False # duplication de signature en output, il y a eu une erreur de transmission 
+                return False # duplication de signature en output, il y a eu une erreur de transmission
                              #ou le vendeur essaye d'enfler l'acheteur
         self.arbre = copie_arbre
         self._update_registre(transaction)
         return True
-    
+
     def _update_registre(self,transaction):
 
         #Méthode "interne", on part du principe qu'elle est appelée que dans update_tree et jamais de l'extérieur
@@ -138,7 +139,7 @@ class UTXOSet:
         if sig in registre["sig"]:
             return False
         return True
-    
+
     def get_user_utxos(self,user):
         if user in registre["user"]:
             return registre["user"][user]
@@ -157,7 +158,7 @@ class UTXOSet:
         with open("./utxo/data") as f:
             last_saved_content = f.read()
             self.load_set(last_saved_content)
-    
+
     def save(self):
 
         new_set_data = {
@@ -170,6 +171,6 @@ class UTXOSet:
 
         with open("./utxo/data","w") as f:
             f.write(new_set_content)
-        
+
 
 

@@ -12,7 +12,6 @@ Méthodes :
     get_block_hash
     get_block_text (donne le bloc sous adaptée pour le stocker)
     add_transaction: ajoute une transaction dans la limite fixée
-    fill_block rempli
 Constructeurs :
     Soit un qui prend le prev hash, les transactions (déjà parsés) et un nombre
     Soit il prend un fichier texte à parse dans le format du bloc
@@ -21,6 +20,8 @@ Constructeurs :
 import json
 import hashlib
 import time
+from Transaction import Transaction
+from UTXOSet import UTXOSet
 from Transaction import Transaction
 from UTXOSet import UTXOSet
 
@@ -33,12 +34,12 @@ class Bloc:
     #static
     UTXO = UTXOSet("")
 
-    def __init__(self, previous_block, transactions, timestamp=None, pow_number=None):
+    def __init__(self, previous_block, transactions, coinbase_transaction=None, timestamp=None, pow_number=None):
         self.previous_block=previous_block
         self.transactions=transactions
         self.timestamp = timestamp
         self.pow_number = pow_number
-        self.coinbase_transaction = None
+        self.coinbase_transaction = coinbase_transaction
         
     def get_block_hash(self):
         h=hashlib.sha256()
@@ -51,8 +52,15 @@ class Bloc:
         self.pow_number=new_pow_number
 
     def is_mined(self):
-        hash = self.get_block_hash()
-        return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
+        hashed = self.get_block_hash()
+        return hashed>=0 and hashed[0:SIZE_TARGET]==[0]*SIZE_TARGET
+    
+    @staticmethod
+    def is_mined_from_text(texte):
+        h=hashlib.sha256()
+        h.update(texte.to_bytes(SIZE, "big"))
+        hashed = h.digest()
+        return hashed[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
     def add_transaction(self, transaction):
         if len(self.transactions)<NB_MAX_TRANSACTIONS and self.timestamp!=None:
@@ -74,7 +82,7 @@ class Bloc:
         for transaction in self.transactions:
             if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
                 self.transactions.remove(transaction)
-        
+        self.UTXO.save()
 
     def __repr__(self):
         output=""
@@ -97,8 +105,8 @@ class Bloc:
 
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
-    def set_coinbase_transaction(self, value):
-        pass
+    def set_coinbase_transaction(self, value, id_mineur):
+        self.coinbase_transaction = Transaction([], [], id_mineur)
 
     def get_block_text(self):
         
@@ -160,7 +168,8 @@ class Bloc:
         transactions = []
         for cur_trans in transactions_data:
             transactions.append(Transaction.from_text(cur_trans))
+        coinbase_transaction = bloc_data["coinbase_transaction"]
         pow_number = bloc_data["pow_number"]
 
 
-        return cls(previous_block_hash,transactions,timestamp,pow_number)
+        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number)

@@ -1,15 +1,16 @@
 import json
 import time
+import hashlib
 import sys
-import utils
 sys.path.append("..")
-from utils import *
+import utils
+from UTXOSet import UTXOSet
 from Signature import Signature
 from Point import Point
 from CourbeElliptique import CourbeElliptique
 
-N = order
-G = Point(generator_x,generator_y,CourbeElliptique(*courbe))
+N = utils.order
+G = Point(utils.generator_x,utils.generator_y,CourbeElliptique(*utils.courbe))
 
 class Transaction:
 
@@ -34,10 +35,14 @@ class Transaction:
         et dans l'UTXO set : ->C
     '''
 
-    #S'ASSURER QUE LES INPUTS VIENNENT BIEN TOUTES DE L'UTXO SET
+    #static
+    utxo_set = UTXOSet("")
 
-    def __init__(self,inputs, outputs, adresseAcheteur):
-        self.horodatage = time.time()
+    def __init__(self,inputs, outputs, adresseAcheteur, horodatage=None):
+        if (horodatage == None):
+            self.horodatage = time.time()
+        else :
+            self.horodatage = horodatage
         self.inputs = inputs
         self.outputs = outputs
         self.nbInputs = len(inputs)
@@ -62,7 +67,7 @@ class Transaction:
             new_cur["cleAcheteur"] = Point(cur_input["cleAcheteur"][0],cur_input["cleAcheteur"][1],CourbeElliptique(*courbe))
             new_cur["sigAcheteur"] = Signature(cur_input["sigAcheteur"][0],cur_input["sigAcheteur"][1])
             inputs.append(new_cur)
-        
+
         outputs_data = bloc_data["outputs"]
         outputs = []
 
@@ -78,10 +83,23 @@ class Transaction:
         outputs = bloc_data["outputs"]
 
         return cls(horodatage,inputs,outputs,adresse_acheteur)
+    
+    def afficherIO(self,tabIO):
+        '''Permet d'afficher un tableau d'entrées ou de sorties'''
+        bills = ""
+        for bill in tabIO:
+            bills += str(bill)+','
+        if (len(bills)!=0):
+            bills = bills[:-1]
+        return bills
 
     def __repr__(self):
-        return "Transaction ("+self.horodatage+"-I:"+afficherIO(self.inputs)+"-O:"+afficherIO(self.outputs)+')'
+        return "Transaction ("+str(self.horodatage)+"-I:"+self.afficherIO(self.inputs)+"-O:"+self.afficherIO(self.outputs)+')'
 
+#------------------------------------------------------------------------------------------------------------------
+# Gestion des Inputs / Outputs
+#------------------------------------------------------------------------------------------------------------------
+    
     def ajouterInputs(self,newInputs):
         '''Entrée : prend un tableau d'inputs, (les vérifie une à une?) puis les ajoute
         dans les inputs de la transaction'''
@@ -94,7 +112,7 @@ class Transaction:
         result = []
         for oldInput in delInputs:
             i=0
-            while (i<nbInputs and not trouve):
+            while (i<self.nbInputs and not trouve):
                 if (self.inputs[i] == oldInput):
                     del self.inputs[i]
                     trouve = True
@@ -128,16 +146,12 @@ class Transaction:
                 trouve = False
         return result
 
+#------------------------------------------------------------------------------------------------------------------
+# Vérification
+#------------------------------------------------------------------------------------------------------------------
 
-    def afficherIO(self,tabIO):
-        '''Permet d'afficher un tableau d'entrées ou de sorties'''
-        bills = ""
-        for bill in tabIO:
-            bills += str(bill)+','
-        if (len(bills)!=0):
-            bills = bills[:-1]
-        return bills
 
+    ##Calculer la différence entre le montant des inputs / outputs
     def differenceIO(self):
         sommeI = 0
         sommeO = 0
@@ -146,42 +160,48 @@ class Transaction:
         for billO in self.outputs:
             sommeO += billO["montant"]
         return sommeI - sommeO
+    
+    def creerMsg(self,horodatage,montant,adresse):
+        return str(horodatage)+'#'+str(montant)+'#'+adresse
 
-    ##Vérification
+    def verifierCoinBaseTransaction(self):
+        return (len(self.inputs) == 0) and (len(self.outputs) == 1) and self.verifierSigOutputs()
 
-    def verifier(self):
-        #Ajouter vérification avec UTXO set et l'histoire des clés ? (vérifier les signatures ???)
-        return sommePositive() and verifierSignatures()
+    def verifierDansUtxoSet(self,sig):
+        return self.utxo_set.is_spent(sig)
 
     def sommePositive(self):
-        return differenceIO()>=0
+        return self.differenceIO()>=0
 
     def hasherMsg(self,msg):
-        zh = s256(msg.encode('utf-8')).digest()
+        zh = hashlib.sha512(msg.encode('utf-8')).digest()
         z = utils.get_int(zh,N)
         return z
 
     def verifierSignatures(self):
-        return verifierSigInputs() and verifierSigOutputs()
+        return self.verifierSigInputs() and self.verifierSigOutputs()
 
     def verifierSigInputs(self):
         valide = True
         for bill in self.inputs:
-            P = bill["cleVendeur"]
-            creerMsg(self.horodatage,bill["montant"],self.adresseAcheteur)
-            valide = valide and bill["sigVendeur"].verifier(hasherMsg(msg),G,N,P)
+            P = bill["cleAcheteur"]
+            msg = self.creerMsg(self.horodatage,bill["montant"],self.adresseAcheteur)
+            valide = valide and bill["sigAcheteur"].verifier(self.hasherMsg(msg),G,N,P)
         return valide
 
     def verifierSigOutputs(self):
         valide = True
         for bill in self.outputs:
-            P = bill["cleAcheteur"]
-            creerMsg(self.horodatage,bill["montant"],bill["vendeur"])
-            valide = valide and bill["sigAcheteur"].verifier(hasherMsg(msg),G,N,P)
+            P = bill["cleVendeur"]
+            msg = self.creerMsg(self.horodatage,bill["montant"],bill["vendeur"])
+            valide = valide and bill["sigVendeur"].verifier(self.hasherMsg(msg),G,N,P)
         return valide
-
-    def creerMsg(self,horodatage,montant,adresse):
-        return str(horodatage)+'#'+montant+'#'+adresse
+    
+    def verifier(self):
+        valide = self.sommePositive() and self.verifierSignatures()
+        for bill in self.inputs:
+            valide = valide and self.verifierDansUtxoSet(bill["sigAcheteur"])
+        return valide
 
 
     ##Getteurs
@@ -203,3 +223,9 @@ class Transaction:
     def setOutputs(self,newOutputs):
         self.outputs = newOutputs
         self.nbOutputs = len(newOutputs)
+
+    def creerUneInputDico(self, montant, sigAcheteur, cleAcheteur):
+        return {"montant":montant, "sigAcheteur":sigAcheteur, "cleAcheteur":cleAcheteur}
+
+    def creerUneOutputDico(self, vendeur, montant, sigVendeur, cleVendeur):
+        return {"vendeur":vendeur, "montant":montant, "sigVendeur":sigVendeur, "cleVendeur":cleVendeur}
