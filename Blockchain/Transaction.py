@@ -6,6 +6,7 @@ sys.path.append("..")
 from utils.py import *
 from Signature import Signature
 from Point import Point
+from UTXOSet import UTXOSet
 
 N = order
 G = Point(generator_x,generator_y,CourbeElliptique(*courbe))
@@ -33,7 +34,7 @@ class Transaction:
         et dans l'UTXO set : ->C
     '''
 
-    #S'ASSURER QUE LES INPUTS VIENNENT BIEN TOUTES DE L'UTXO SET
+    utxo_set = UTXOSet()
 
     def __init__(self,inputs, outputs, adresseAcheteur):
         self.horodatage = time.time()
@@ -59,7 +60,7 @@ class Transaction:
             new_cur["cleAcheteur"] = Point(cur_input["cleAcheteur"][0],cur_input["cleAcheteur"][1],CourbeElliptique(*courbe))
             new_cur["sigAcheteur"] = Signature(cur_input["sigAcheteur"][0],cur_input["sigAcheteur"][1])
             inputs.append(new_cur)
-        
+
         outputs_data = bloc_data["outputs"]
         outputs = []
 
@@ -147,8 +148,13 @@ class Transaction:
     ##Vérification
 
     def verifier(self):
-        #Ajouter vérification avec UTXO set et l'histoire des clés ? (vérifier les signatures ???)
-        return sommePositive() and verifierSignatures()
+        valide = sommePositive() and verifierSignatures()
+        for bill in self.inputs:
+            valide = valide and verifierDansUtxoSet(bill["sigAcheteur"])
+        return valide
+
+    def verifierDansUtxoSet(self,sig):
+        return utxo_set.is_spent(sig)
 
     def sommePositive(self):
         return differenceIO()>=0
