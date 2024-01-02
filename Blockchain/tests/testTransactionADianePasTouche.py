@@ -1,9 +1,12 @@
+import sys
+sys.path.append("..")
 from Transaction import Transaction
+from Signature import Signature
 ##import unittest
 
-paiementAB = Transaction('30/12/2023',("Alice31",50,"BobSigne"))
-tabT = [("Jacques2",50,"BobSigne2")]
-paiementAB.ajouterInputs(tabT)
+tabI = [{montant:50,sigAcheteur:(56,47),cleAcheteur:(1,2)}]
+tabO = [{vendeur:"Bob",montant:30,sigVendeur:(34,78),cleVendeur:(3,4)}]
+paiementAB = Transaction(tabI,tabO, "Alice")
 paiementAB.__repr__()
 
 ##class testTransaction(unittest.TestCase):
