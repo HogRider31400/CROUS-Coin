@@ -1,8 +1,7 @@
 import sys
 sys.path.append("..")
 
-
-from Bloc import Bloc
+import Bloc
 import unittest
 
 example_block = """
