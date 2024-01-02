@@ -30,20 +30,23 @@ class UTXOSet:
             self.update_all()
 
     def load_set(self,texte):
-        if texte == "":
+        if texte == "" or texte == {}:
             self.arbre = {}
             self.registre = {}
             self.current_block_hash = None
-            self.update_set()
+            self.update_all()
+            self.update_all()
         else:
-            set_data = json.loads(texte)
-
+            if type(texte) != dict:
+                set_data = json.loads(texte)
+            else:
+                set_data = texte #déjà du json
             self.arbre = set_data["arbre"]
             self.registre = set_data["registre"]
             self.current_block_hash = set_data["current_block_hash"]
 
-    def get_next_block():
-
+    def get_next_block(self):
+        
         block_list = os.listdir("./blocs")
 
         for block_hash in block_list:
@@ -56,7 +59,7 @@ class UTXOSet:
         return None
 
     def update_next_block(self):
-        next_block_hash = get_next_block()
+        next_block_hash = self.get_next_block()
         if not (next_block_hash):
             return False
 
@@ -89,16 +92,16 @@ class UTXOSet:
         inputs = transaction["inputs"]
 
         for cur_input in inputs:
-            if cur_input["sigVendeur"] in copie_arbre:
+            if cur_input["sigAcheteur"] in copie_arbre:
                 #TODO : mettre à jour le registre
-                del copie_arbre[cur_input["sigVendeur"]]
+                del copie_arbre[cur_input["sigAcheteur"]]
             else:
                 return False # ce n'est pas un utxo et n'a rien à faire en input
 
         for cur_output in outputs:
-            if cur_output["sigAcheteur"] not in copie_arbre:
+            if cur_output["sigVendeur"] not in copie_arbre:
                 #TODO : mettre à jour le registre
-                copie_arbre[cur_output["sigAcheteur"]] = cur_output
+                copie_arbre[cur_output["sigVendeur"]] = cur_output
             else:
                 return False # duplication de signature en output, il y a eu une erreur de transmission
                              #ou le vendeur essaye d'enfler l'acheteur
@@ -111,22 +114,22 @@ class UTXOSet:
         #Méthode "interne", on part du principe qu'elle est appelée que dans update_tree et jamais de l'extérieur
         #Donc les données de "transaction" sont valides et il ne devrait y avoir aucune erreur lors de la mise à jour du registre
 
-
+        acheteur = transaction["acheteur"]
         # Partie 1 : on enlève les éléments dans l'input
         for cur_input in transaction["inputs"]:
             del registre["sig"][cur_input["sigVendeur"]]
 
-            registre["user"][cur_input["vendeur"]].remove(cur_input)
-            if(len(registre["user"][cur_input["vendeur"]]) == 0):
-                del registre["user"][cur_input["vendeur"]]
-            registre["user"][self.current_block_hash].remove(cur_input)
-
+            registre["user"][acheteur].remove(cur_input)
+            if(len(registre["user"][acheteur]) == 0):
+                del registre["user"][acheteur]
+            registre["block_hash"][self.current_block_hash].remove(cur_input)
+        
         #Partie 2 : on ajoute les nouveaux
         for cur_output in transaction["outputs"]:
-            registre["sig"][cur_input["sigAcheteur"]] = cur_output
-            if not cur_input["acheteur"] in registre["user"]:
-                registre["user"][cur_input["acheteur"]] = []
-            registre["user"][cur_input["acheteur"]].append(cur_output)
+            registre["sig"][cur_input["sigVendeur"]] = cur_output
+            if not cur_input["vendeur"] in registre["user"]:
+                registre["user"][cur_input["vendeur"]] = []
+            registre["user"][cur_input["vendeur"]].append(cur_output)
             if not self.current_block_hash in registre["block_hash"]:
                 registre["block_hash"][self.current_block_hash] = []
             registre["block_hash"][self.current_block_hash].append(cur_output)

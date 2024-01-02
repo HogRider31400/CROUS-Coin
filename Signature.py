@@ -7,7 +7,10 @@ class Signature:
         self.s = s
 
     def __repr__(self):
-        return "Signature ("+str(r)+", "+str(s)+')'
+        return "Signature ("+str(self.r)+", "+str(self.s)+')'
+
+    def get_sig(self):
+        return (self.r,self.s)
 
     def verifier(self,z,G,N,P):
         s_inverse = pow(self.s,N-2,N)

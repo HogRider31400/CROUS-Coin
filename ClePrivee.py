@@ -59,3 +59,8 @@ class ClePrivee:
                 return candidat
             k = hmac.new(k, v + b'\x00', s256).digest()
             v = hmac.new(k, v, s256).digest()
+
+signature_pour_diane = ClePrivee(3)
+print(signature_pour_diane.point.get_coords())
+msg_zh = hashlib.sha512('3456789.232323#30#Bob'.encode('utf-8')).digest()
+print(signature_pour_diane.signer(utils.get_int(msg_zh,utils.order)).get_sig())

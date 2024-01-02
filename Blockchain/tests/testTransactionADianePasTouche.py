@@ -4,8 +4,10 @@ from Transaction import Transaction
 from Signature import Signature
 ##import unittest
 
-tabI = [{montant:50,sigAcheteur:(56,47),cleAcheteur:(1,2)}]
-tabO = [{vendeur:"Bob",montant:30,sigVendeur:(34,78),cleVendeur:(3,4)}]
+sigAcheteur = Signature(56,47)
+sigVendeur = Signature(34,78)
+tabI = [{"montant":50,"sigAcheteur":sigAcheteur,"cleAcheteur":(1,2)}]
+tabO = [{"vendeur":"Bob","montant":30,"sigVendeur":sigVendeur,"cleVendeur":(3,4)}]
 paiementAB = Transaction(tabI,tabO, "Alice")
 paiementAB.__repr__()
 

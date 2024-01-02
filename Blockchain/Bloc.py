@@ -20,8 +20,10 @@ Constructeurs :
 import json
 import hashlib
 import time
-import Transaction
-import UTXOSet
+from Transaction import Transaction
+from UTXOSet import UTXOSet
+from Transaction import Transaction
+from UTXOSet import UTXOSet
 
 SIZE = 32
 SIZE_TARGET = 3
@@ -108,22 +110,43 @@ class Bloc:
 
     def get_block_text(self):
         
-        tx_list_data = []
+        def get_tx_data(tx):
+            inputs = []
+            for cur_input in tx.getInputs():
+                new_input = cur_input 
+                new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
+                new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
+                inputs.append(new_input)
 
+            outputs = []
+
+            for cur_output in tx.getOutputs():
+                new_output = cur_output
+                new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
+                new_output["sigVendeur"] = cur_output["sigVendeur"].get_coords()
+                outputs.append(new_output)
+            
+            return {
+                    "horodatage" : tx.getHorodatage(),
+                    "inputs" : inputs,
+                    "outputs" : outputs
+                }
+
+
+        coinbase_transaction = get_tx_data(self.coinbase_transaction)        
+
+        tx_list_data = []
+ 
         for tx in self.transactions:
             tx_list_data.append(
-                {
-                    "horodatage" : tx.getHorodatage(),
-                    "inputs" : tx.getInputs(),
-                    "outputs" : tx.getOutputs()
-                }
+                get_tx_data(tx)
             )
 
 
         block_data = {
             "previous_block_hash" : self.previous_block,
             "timestamp" : self.timestamp,
-            "coinbase_transaction" : self.coinbase_transaction,
+            "coinbase_transaction" : coinbase_transaction,
             "transactions" : tx_list_data,
             "pow_number" : self.pow_number
         }
