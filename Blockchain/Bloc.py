@@ -21,8 +21,8 @@ Constructeurs :
 import json
 import hashlib
 import time
-import Transaction
-import UTXOSet
+from Transaction import Transaction
+from UTXOSet import UTXOSet
 
 SIZE = 32
 SIZE_TARGET = 3

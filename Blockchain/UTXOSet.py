@@ -34,7 +34,7 @@ class UTXOSet:
             self.arbre = {}
             self.registre = {}
             self.current_block_hash = None
-            self.update_set()
+            self.update_all()
         else:
             set_data = json.loads(texte)
 
@@ -42,7 +42,7 @@ class UTXOSet:
             self.registre = set_data["registre"]
             self.current_block_hash = set_data["current_block_hash"]
 
-    def get_next_block():
+    def get_next_block(self):
 
         block_list = os.listdir("./blocs")
 
@@ -56,7 +56,7 @@ class UTXOSet:
         return None
 
     def update_next_block(self):
-        next_block_hash = get_next_block()
+        next_block_hash = self.get_next_block()
         if not (next_block_hash):
             return False
 
