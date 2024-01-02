@@ -36,3 +36,5 @@ class Minage:
         texte = json.loads(self.bloc_text)
         texte["pow_number"]=number
         return self.bloc.is_mined_from_text(texte)
+    
+    
