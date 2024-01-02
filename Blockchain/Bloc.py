@@ -106,7 +106,7 @@ class Bloc:
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
     def set_coinbase_transaction(self, value, id_mineur):
-        self.coinbase_transaction = Transaction([], [], id_mineur)
+        self.coinbase_transaction = Transaction([], [], mineur.get_id())
 
     def get_block_text(self):
         

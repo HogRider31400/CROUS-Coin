@@ -39,6 +39,7 @@ class testBloc(unittest.TestCase):
         self.assertTrue(len(bloc.transactions) == 1)
         self.assertTrue(bloc.magic_number == 10)
 
+        self.assertTrue(bloc.magic_number == None)
         self.assertTrue(bloc.magic_number == None)"""
 
     def testMinedBloc(self):
