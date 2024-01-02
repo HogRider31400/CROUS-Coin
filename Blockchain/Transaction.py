@@ -162,6 +162,7 @@ class Transaction:
         return sommeI - sommeO
     
     def creerMsg(self,horodatage,montant,adresse):
+        print(str(horodatage)+'#'+str(montant)+'#'+adresse)
         return str(horodatage)+'#'+str(montant)+'#'+adresse
 
     def verifierCoinBaseTransaction(self):
@@ -204,7 +205,10 @@ class Transaction:
         return valide
 
 
-    ##Getteurs
+#------------------------------------------------------------------------------------------------------------------
+# Getteurs
+#------------------------------------------------------------------------------------------------------------------
+
     #Pas de set sur l'horodatage pour éviter les fraudes
 
     def getHorodatage(self):
@@ -215,6 +219,11 @@ class Transaction:
 
     def getOutputs(self):
         return self.outputs
+    
+#------------------------------------------------------------------------------------------------------------------
+# Setteurs
+#------------------------------------------------------------------------------------------------------------------
+
 
     def setInputs(self,newInputs):
         self.inputs = newInputs
@@ -223,6 +232,10 @@ class Transaction:
     def setOutputs(self,newOutputs):
         self.outputs = newOutputs
         self.nbOutputs = len(newOutputs)
+
+#------------------------------------------------------------------------------------------------------------------
+# Création I/O
+#------------------------------------------------------------------------------------------------------------------
 
     def creerUneInputDico(self, montant, sigAcheteur, cleAcheteur):
         return {"montant":montant, "sigAcheteur":sigAcheteur, "cleAcheteur":cleAcheteur}

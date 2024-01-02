@@ -35,17 +35,16 @@ class testBloc(unittest.TestCase):
 
 
         """self.assertTrue(bloc.previous_block_hash == "aopziejazeokhazeazeaze")
-        """self.assertTrue(bloc.previous_block_hash == "aopziejazeokhazeazeaze")
+        self.assertTrue(bloc.previous_block_hash == "aopziejazeokhazeazeaze")
         self.assertTrue(len(bloc.transactions) == 1)
         self.assertTrue(bloc.magic_number == 10)
 
         self.assertTrue(bloc.magic_number == None)"""
-        self.assertTrue(bloc.magic_number == None)"""
 
     def testMinedBloc(self):
         """self.assertTrue(bloc.is_mined())
-        self.assertFalse(bloc2.is_mined())"""
-        """self.assertTrue(bloc.is_mined())
+        self.assertFalse(bloc2.is_mined())
+        self.assertTrue(bloc.is_mined())
         self.assertFalse(bloc2.is_mined())"""
 
     def testValidBloc(self):
