@@ -3,9 +3,10 @@ import time
 import sys
 import utils
 sys.path.append("..")
-from utils.py import *
+from utils import *
 from Signature import Signature
 from Point import Point
+from CourbeElliptique import CourbeElliptique
 
 N = order
 G = Point(generator_x,generator_y,CourbeElliptique(*courbe))
@@ -45,8 +46,10 @@ class Transaction:
 
     @classmethod
     def from_text(cls,text):
-        bloc_data = json.loads(text)
-
+        if type(text) != dict:
+            bloc_data = json.loads(text)
+        else:
+            block_data = text
         horodatage = bloc_data["horodatage"]
         adresse_acheteur = bloc_data["acheteur"]
         inputs_data = bloc_data["inputs"]

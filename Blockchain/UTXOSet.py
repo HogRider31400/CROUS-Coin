@@ -30,19 +30,21 @@ class UTXOSet:
             self.update_all()
 
     def load_set(self,texte):
-        if texte == "":
+        if texte == "" or texte == {}:
             self.arbre = {}
             self.registre = {}
             self.current_block_hash = None
-            self.update_set()
+            self.update_all()
         else:
-            set_data = json.loads(texte)
-
+            if type(texte) != dict:
+                set_data = json.loads(texte)
+            else:
+                set_data = texte #déjà du json
             self.arbre = set_data["arbre"]
             self.registre = set_data["registre"]
             self.current_block_hash = set_data["current_block_hash"]
 
-    def get_next_block():
+    def get_next_block(self):
         
         block_list = os.listdir("./blocs")
 
@@ -56,7 +58,7 @@ class UTXOSet:
         return None
 
     def update_next_block(self):
-        next_block_hash = get_next_block()
+        next_block_hash = self.get_next_block()
         if not (next_block_hash):
             return False
         
@@ -122,7 +124,7 @@ class UTXOSet:
             registre["block_hash"][self.current_block_hash].remove(cur_input)
         
         #Partie 2 : on ajoute les nouveaux
-        for cur_output in transaction["outputs"]
+        for cur_output in transaction["outputs"]:
             registre["sig"][cur_input["sigVendeur"]] = cur_output
             if not cur_input["vendeur"] in registre["user"]:
                 registre["user"][cur_input["vendeur"]] = []
@@ -159,8 +161,8 @@ class UTXOSet:
     def save(self):
 
         new_set_data = {
-            "arbre" : self.arbre
-            "registre" : self.registre
+            "arbre" : self.arbre,
+            "registre" : self.registre,
             "current_block_hash" : self.current_block_hash
         }
 

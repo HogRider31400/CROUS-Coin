@@ -26,6 +26,8 @@ class Point:
     def __eq__(self,other):
         return self.x == other.x and self.y == other.y and self.CE == other.CE
 
+    def get_coords(self):
+        return (self.x.nb,self.y.nb)
 
     def __add__(self,other_point):
 
