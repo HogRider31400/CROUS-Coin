@@ -122,7 +122,7 @@ class UTXOSet:
             registre["user"][self.current_block_hash].remove(cur_input)
         
         #Partie 2 : on ajoute les nouveaux
-        for cur_output in transaction["outputs"]
+        for cur_output in transaction["outputs"]:
             registre["sig"][cur_input["sigAcheteur"]] = cur_output
             if not cur_input["acheteur"] in registre["user"]:
                 registre["user"][cur_input["acheteur"]] = []

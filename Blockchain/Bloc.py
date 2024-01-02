@@ -4,6 +4,7 @@ Attributs
     previous_block_hash (donné à la création de l'objet)
     timestamp : moment où le bloc est certifié valide/complet
     transactions : liste de transactions
+    coinbase_transaction:
     pow_number (si None alors le bloc n'a pas encore été miné)
 Méthodes :
     is_valid
@@ -33,6 +34,7 @@ class Bloc:
         self.transactions=transactions
         self.timestamp = timestamp
         self.pow_number = pow_number
+        self.coinbase_transaction = None
         
     def get_block_hash(self):
         h=hashlib.sha256()
@@ -70,6 +72,7 @@ class Bloc:
         output=""
         output.append("BLOC \n")
         output.append("Previous bloc hash: " + self.previous_block + "\n")
+        output.append("Coinbase transactoin: " + self.coinbase_transaction + "\n")
         output.append("Transactions: \n")
         for transaction in self.transactions:
             output.append(transaction + "\n")
@@ -82,6 +85,12 @@ class Bloc:
         for transaction in self.transactions:
             somme+=transaction.differenceIO()
         return somme
+    
+
+    #transaction sans input à faire 
+    #ajouter en plus le surplus de toutes les tx
+    def set_coinbase_transaction(self, value):
+        pass
 
     def get_block_text(self):
         
