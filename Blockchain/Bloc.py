@@ -4,6 +4,7 @@ Attributs
     previous_block_hash (donné à la création de l'objet)
     timestamp : moment où le bloc est certifié valide/complet
     transactions : liste de transactions
+    coinbase_transaction:
     pow_number (si None alors le bloc n'a pas encore été miné)
 Méthodes :
     is_valid
@@ -21,6 +22,7 @@ import json
 import hashlib
 import time
 import Transaction
+import UTXOSet
 
 SIZE = 32
 SIZE_TARGET = 3
@@ -28,11 +30,15 @@ NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
 
+    #static
+    UTXO = UTXOSet("")
+
     def __init__(self, previous_block, transactions, timestamp=None, pow_number=None):
         self.previous_block=previous_block
         self.transactions=transactions
         self.timestamp = timestamp
         self.pow_number = pow_number
+        self.coinbase_transaction = None
         
     def get_block_hash(self):
         h=hashlib.sha256()
@@ -49,27 +55,32 @@ class Bloc:
         return hash>=0 and hash[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
     def add_transaction(self, transaction):
-        if len(self.transactions)<NB_MAX_TRANSACTIONS:
+        if len(self.transactions)<NB_MAX_TRANSACTIONS and self.timestamp!=None:
             self.transactions.append(transaction)
         else:
             print("Nombre max de transactions atteint.")
     
     """
-        il faut rajouter les vérifications des tx dans le utxo + la vérification du bloc précédent.
+        il faut rajouter la vérification du bloc précédent.
     """
     def is_valid(self):
-        for transaction in self.transactions:
-            if not transaction.verifier():
-                return False
+        self.maj_transactions()
         if not self.is_mined():
             return False
         self.timestamp = time.time()
         return True
 
+    def maj_transactions(self):
+        for transaction in self.transactions:
+            if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
+                self.transactions.remove(transaction)
+        
+
     def __repr__(self):
         output=""
         output.append("BLOC \n")
         output.append("Previous bloc hash: " + self.previous_block + "\n")
+        output.append("Coinbase transactoin: " + self.coinbase_transaction + "\n")
         output.append("Transactions: \n")
         for transaction in self.transactions:
             output.append(transaction + "\n")
@@ -82,6 +93,12 @@ class Bloc:
         for transaction in self.transactions:
             somme+=transaction.differenceIO()
         return somme
+    
+
+    #transaction sans input à faire 
+    #ajouter en plus le surplus de toutes les tx
+    def set_coinbase_transaction(self, value):
+        pass
 
     def get_block_text(self):
         
