@@ -159,8 +159,8 @@ class UTXOSet:
     def save(self):
 
         new_set_data = {
-            "arbre" : self.arbre
-            "registre" : self.registre
+            "arbre" : self.arbre,
+            "registre" : self.registre,
             "current_block_hash" : self.current_block_hash
         }
 
