@@ -1,5 +1,6 @@
 import sys
 sys.path.append("../.")
+sys.path.append("../EllipticCurves")
 from Signature import Signature
 from Transaction import Transaction
 from Point import Point

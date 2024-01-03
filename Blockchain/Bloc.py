@@ -22,8 +22,6 @@ import hashlib
 import time
 from Transaction import Transaction
 from UTXOSet import UTXOSet
-from Transaction import Transaction
-from UTXOSet import UTXOSet
 
 SIZE = 32
 SIZE_TARGET = 3

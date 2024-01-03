@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-
+sys.path.append("../EllipticCurves")
 
 from Minage import Minage
 import unittest
