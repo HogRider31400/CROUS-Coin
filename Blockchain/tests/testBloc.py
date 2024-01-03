@@ -1,5 +1,5 @@
 import sys
-sys.path.append("..")
+sys.path.append("..")  
 sys.path.append("../EllipticCurves")
 from Bloc import Bloc
 import unittest
@@ -32,6 +32,7 @@ class testBloc(unittest.TestCase):
     def setUp(self):
         self.bloc = Bloc.from_text(example_block)
         self.bloc2 = Bloc.from_text(example_block2)
+        
 
     def testParseBlock(self):
 
@@ -40,6 +41,12 @@ class testBloc(unittest.TestCase):
         self.assertTrue(len(self.bloc.transactions) == 0)
         self.assertTrue(self.bloc.get_pow_number() == 10)
         self.assertTrue(self.bloc2.get_pow_number() == None)
+
+    def testHashBloc(self):
+        self.hash1 = self.bloc.get_block_hash()
+        print("hash bloc 1: ")
+        print(int.from_bytes(self.hash1, 'big'))
+        self.assertTrue(self.hash1 == self.bloc.get_block_hash())
 
     def testMinedBloc(self):
         self.assertTrue(self.bloc.is_mined())
