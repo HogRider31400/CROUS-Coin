@@ -43,6 +43,7 @@ class UTXOSet:
                 "block_hash" : {}
             }
             self.current_block_hash = None
+            self.save()
             self.update_all()
         else:
             if type(texte) != dict:
