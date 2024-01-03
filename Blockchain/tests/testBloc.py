@@ -11,6 +11,7 @@ example_block = """
             "transactions" : [
                 
             ],
+            "coinbase_transaction" : null,
             "pow_number" : 10
         }
 """
@@ -21,6 +22,7 @@ example_block2 = """
             "transactions" : [
                 
             ],
+            "coinbase_transaction" : null,
             "pow_number" : null
         }
 """
