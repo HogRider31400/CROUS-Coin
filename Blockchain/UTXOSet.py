@@ -180,6 +180,3 @@ class UTXOSet:
 
         with open(self.UTXO_FOLDER+"data","w") as f:
             f.write(new_set_content)
-
-
-
