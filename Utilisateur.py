@@ -5,9 +5,14 @@ import os
 
 from ClePrivee import ClePrivee
 from UTXOSet import UTXOSet
+from Transaction import Transaction
+from Signature import Signature
 from utils_user import dossier_existe,hash_sha256
 
 class Utilisateur:
+
+    NBMAXINPUTS = 1000
+    NBMAXOUTPUTS = 1000
 
     def __init__(self,private_key):
         self.private_key = ClePrivee(private_key)
@@ -43,11 +48,109 @@ class Utilisateur:
 
         self.utxo_set = UTXOSet(set_data, False,DOSSIER_UTXO,DOSSIER_BLOCS)
 
+    def creer_transaction(self,inputs, outputs, horodatage=None):
+        return Transaction(inputs, outputs, self.wallet, horodatage)
+    
+    def afficher_transactions_anterieures(self):
+        print("Vos transactions : blablabla à récupérer de l'UTXO Set....")
+
+    def entrer_un_nombre(self,message,min,max=-1):
+        userInput = min - 1
+        while (userInput < min or (userInput > max or max ==-1)):
+            try:
+                msg = "Veuillez entrer " + message
+                if (max != -1):
+                    msg += " (entre " + min + " et " + max + ") :"
+                userInput = int(input(msg))
+            except:
+                print("Cette entrée ne correspond pas à un chiffre.\n")
+        return userInput
+    
+    def entrer_input(self, transaction):
+        montant = self.entrerUnNombre("le montant",0)
+
+        vieilles_outputs = self.utxo_set.get_user_utxos(self.wallet)
+        trouve = False
+        i=0
+        while(i<len(vieilles_outputs) and not trouve):
+            vieille_output = vieilles_outputs[i]
+            if (vieille_output["montant"] == montant):
+                trouve = True
+            i+=1
+        input = transaction.creerUneInputDico(self, montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
+        transaction.ajouterInputs([input])
+    
+    def entrer_output(self, transaction):
+        montant = self.entrerUnNombre("le montant",0)
+        adresseVendeur = input("Entrez l'adresse de celui à qui vous voulez donner de l'argent :")
+        input = transaction.creerUneInputDico(self, montant, "sigVendeur", "cleVendeur")
+        transaction.ajouterInputs([input])
+
+    def menu_transaction(self):
+        transaction = self.creerTransaction([],[])
+        self.afficherTransactionsAnterieures()
+        nbTransAnterieures = self.entrerUnNombre("le nombre de transactions que vous souhaitez utiliser :",1,self.NBMAXINPUTS)
+        for i in range(nbTransAnterieures):
+            self.entrerInput(transaction)
+        
+        nbDepenses = self.entrerUnNombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
+        for j in range(nbDepenses):
+            self.entrerOutput(transaction)
+
+    def creer_transaction(self,inputs, outputs, horodatage=None):
+        return Transaction(inputs, outputs, self.wallet, horodatage)
+    
+    def afficher_transactions_anterieures(self):
+        print("Vos transactions : blablabla à récupérer de l'UTXO Set....")
+
+    def entrer_un_nombre(self,message,min,max=-1):
+        userInput = min - 1
+        while (userInput < min or (userInput > max or max ==-1)):
+            try:
+                msg = "Veuillez entrer " + message
+                if (max != -1):
+                    msg += " (entre " + min + " et " + max + ") :"
+                userInput = int(input(msg))
+            except:
+                print("Cette entrée ne correspond pas à un chiffre.\n")
+        return userInput
+    
+    def entrer_input(self, transaction):
+        montant = self.entrerUnNombre("le montant",0)
+
+        vieilles_outputs = self.utxo_set.get_user_utxos(self.wallet)
+        trouve = False
+        i=0
+        while(i<len(vieilles_outputs) and not trouve):
+            vieille_output = vieilles_outputs[i]
+            if (vieille_output["montant"] == montant):
+                trouve = True
+            i+=1
+        input = transaction.creerUneInputDico(self, montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
+        transaction.ajouterInputs([input])
+    
+    def entrer_output(self, transaction):
+        montant = self.entrerUnNombre("le montant",0)
+        adresseVendeur = input("Entrez l'adresse de celui à qui vous voulez donner de l'argent :")
+        input = transaction.creerUneInputDico(self, montant, "sigVendeur", "cleVendeur")
+        transaction.ajouterInputs([input])
+
+    def menu_transaction(self):
+        transaction = self.creerTransaction([],[])
+        self.afficherTransactionsAnterieures()
+        nbTransAnterieures = self.entrerUnNombre("le nombre de transactions que vous souhaitez utiliser :",1,self.NBMAXINPUTS)
+        for i in range(nbTransAnterieures):
+            self.entrerInput(transaction)
+        
+        nbDepenses = self.entrerUnNombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
+        for j in range(nbDepenses):
+            self.entrerOutput(transaction)
+
     def menu(self):
 
         message_debut = [
             "Votre wallet est " + self.wallet,
-            "Vous pouvez faire :",
+            "Vous pouvez :",
             "0 : Consulter votre solde",
             "1 : Faire une transaction",
             "2 : Miner",
@@ -68,8 +171,9 @@ class Utilisateur:
                 except:
                     choix = -1
 
-
-            if choix==4: return
+            if choix==1:
+                self.menuTransaction()
+            elif choix==4: return
             elif choix == 0:
                 print("Votre solde est :",sum(self.utxo_set.get_block_utxos(self.wallet)))
 

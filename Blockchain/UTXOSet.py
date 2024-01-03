@@ -79,7 +79,7 @@ class UTXOSet:
         self.current_block_hash = next_block_hash
 
         for transaction in next_block_data["transactions"]:
-            success = try_update_tree(transaction)
+            success = self.try_update_tree(transaction)
             if not success:
                 print("Block", next_block_hash ,"is not OK, current block is still",self.current_block_hash)
                 self.rollback()
@@ -126,22 +126,22 @@ class UTXOSet:
         acheteur = transaction["acheteur"]
         # Partie 1 : on enlève les éléments dans l'input
         for cur_input in transaction["inputs"]:
-            del registre["sig"][cur_input["sigVendeur"]]
+            del self.registre["sig"][cur_input["sigVendeur"]]
 
-            registre["user"][acheteur].remove(cur_input)
-            if(len(registre["user"][acheteur]) == 0):
-                del registre["user"][acheteur]
-            registre["block_hash"][self.current_block_hash].remove(cur_input)
+            self.registre["user"][acheteur].remove(cur_input)
+            if(len(self.registre["user"][acheteur]) == 0):
+                del self.registre["user"][acheteur]
+            self.registre["block_hash"][self.current_block_hash].remove(cur_input)
         
         #Partie 2 : on ajoute les nouveaux
         for cur_output in transaction["outputs"]:
-            registre["sig"][cur_input["sigVendeur"]] = cur_output
-            if not cur_input["vendeur"] in registre["user"]:
-                registre["user"][cur_input["vendeur"]] = []
-            registre["user"][cur_input["vendeur"]].append(cur_output)
-            if not self.current_block_hash in registre["block_hash"]:
-                registre["block_hash"][self.current_block_hash] = []
-            registre["block_hash"][self.current_block_hash].append(cur_output)
+            self.registre["sig"][cur_input["sigVendeur"]] = cur_output
+            if not cur_input["vendeur"] in self.registre["user"]:
+                self.registre["user"][cur_input["vendeur"]] = []
+            self.registre["user"][cur_input["vendeur"]].append(cur_output)
+            if not self.current_block_hash in self.registre["block_hash"]:
+                self.registre["block_hash"][self.current_block_hash] = []
+            self.registre["block_hash"][self.current_block_hash].append(cur_output)
             #TODO : partie block_hash
 
     def is_spent(self,sig):
