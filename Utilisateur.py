@@ -1,30 +1,47 @@
 import sys
 sys.path.append("./Blockchain")
 sys.path.append("./EllipticCurves")
-
+import os
 
 from ClePrivee import ClePrivee
 from UTXOSet import UTXOSet
+from utils_user import dossier_existe,hash_sha256
 
 class Utilisateur:
 
     def __init__(self,private_key):
         self.private_key = ClePrivee(private_key)
-        self.wallet = ','.join([str(cur) for cur in self.private_key.point.get_coords()])
+        self.wallet = hash_sha256(','.join([str(cur) for cur in self.private_key.point.get_coords()]))
+        print(self.wallet)
+        self.DOSSIER = "./Users/" + self.wallet + "/"
         self.init_blockchain()
         self.menu()
 
     def init_blockchain(self):
         
+        if not dossier_existe("./Users/"):
+            os.mkdir("./Users/")
+
+        if not dossier_existe(self.DOSSIER):
+            os.mkdir(self.DOSSIER)
+
+        DOSSIER_BLOCS = self.DOSSIER+"blocs/"
+        DOSSIER_UTXO = self.DOSSIER+"utxo/"
+
+        if not dossier_existe(DOSSIER_BLOCS):
+            os.mkdir(DOSSIER_BLOCS)
+        if not dossier_existe(DOSSIER_UTXO):
+            os.mkdir(DOSSIER_UTXO)
+
         try:
-            with open("./Blockchain/utxo/data") as f:
+            with open(DOSSIER_UTXO+"data") as f:
                 set_data = f.read()
         except:
-            with open("./Blockchain/utxo/data","w") as f:
+            with open(DOSSIER_UTXO+"data","w") as f:
                 pass
             set_data = ""
 
-        self.utxo_set = UTXOSet(set_data, False,'./Blockchain/utxo/','./Blockchain/blocs/')
+        self.utxo_set = UTXOSet(set_data, False,DOSSIER_UTXO,DOSSIER_BLOCS)
 
     def menu(self):
 

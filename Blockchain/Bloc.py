@@ -162,7 +162,7 @@ class Bloc:
     
     def save(self):
 
-        with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
+        with open(self.UTXO_FOLDER+self.get_block_hash(),"w") as f:
             f.write(self.get_block_text())
 
     @classmethod
