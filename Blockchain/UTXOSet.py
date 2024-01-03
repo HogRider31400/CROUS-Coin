@@ -44,7 +44,6 @@ class UTXOSet:
             }
             self.current_block_hash = None
             self.save()
-            self.update_all()
         else:
             if type(texte) != dict:
                 set_data = json.loads(texte)

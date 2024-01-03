@@ -164,7 +164,7 @@ class Bloc:
             f.write(self.get_block_text())
 
     @classmethod
-    def from_text(cls,text):
+    def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
         bloc_data = json.loads(text)
 
         previous_block_hash = bloc_data["previous_block_hash"]
@@ -173,8 +173,8 @@ class Bloc:
         transactions = []
         for cur_trans in transactions_data:
             transactions.append(Transaction.from_text(cur_trans))
-        coinbase_transaction = bloc_data["coinbase_transaction"]
+        coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
         pow_number = bloc_data["pow_number"]
 
 
-        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number)
+        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)
