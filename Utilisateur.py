@@ -50,7 +50,7 @@ class Utilisateur:
         return userInput
     
     def entrer_input(self, transaction):
-        montant = self.entrerUnNombre("le montant",0)
+        montant = self.entrer_un_nombre("le montant",0)
 
         vieilles_outputs = self.utxo_set.get_user_utxos(self.wallet)
         trouve = False
@@ -60,25 +60,26 @@ class Utilisateur:
             if (vieille_output["montant"] == montant):
                 trouve = True
             i+=1
-        input = transaction.creerUneInputDico(self, montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
-        transaction.ajouterInputs([input])
+        inputT = transaction.creer_une_input_dico(self, montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
+        transaction.ajouter_inputs([inputT])
     
     def entrer_output(self, transaction):
-        montant = self.entrerUnNombre("le montant",0)
+        montant = self.entrer_un_nombre("le montant",0)
         adresseVendeur = input("Entrez l'adresse de celui à qui vous voulez donner de l'argent :")
-        input = transaction.creerUneInputDico(self, montant, "sigVendeur", "cleVendeur")
-        transaction.ajouterInputs([input])
+        msgHashe = transaction.hasher_msg(transaction.creer_message(transaction.get_horodatage(),montant,adresseVendeur))
+        outputT = transaction.creer_une_input_dico(self, montant, self.private_key.signer(msgHashe), self.private_key.point)
+        transaction.ajouter_inputs([outputT])
 
     def menu_transaction(self):
-        transaction = self.creerTransaction([],[])
-        self.afficherTransactionsAnterieures()
-        nbTransAnterieures = self.entrerUnNombre("le nombre de transactions que vous souhaitez utiliser :",1,self.NBMAXINPUTS)
+        transaction = self.creer_transaction([],[])
+        self.afficher_transactions_anterieures()
+        nbTransAnterieures = self.entrer_un_nombre("le nombre de transactions que vous souhaitez utiliser :",1,self.NBMAXINPUTS)
         for i in range(nbTransAnterieures):
-            self.entrerInput(transaction)
+            self.entrer_input(transaction)
         
-        nbDepenses = self.entrerUnNombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
+        nbDepenses = self.entrer_un_nombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
         for j in range(nbDepenses):
-            self.entrerOutput(transaction)
+            self.entrer_output(transaction)
 
     def menu(self):
 
@@ -106,7 +107,7 @@ class Utilisateur:
                     choix = -1
 
             if choix==1:
-                self.menuTransaction()
+                self.menu_transaction()
             elif choix==4: return
             elif choix == 0:
                 print("Votre solde est :",sum(self.utxo_set.get_block_utxos(self.wallet)))

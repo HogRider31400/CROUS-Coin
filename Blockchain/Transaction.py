@@ -101,14 +101,14 @@ class Transaction:
 # Gestion des Inputs / Outputs
 #------------------------------------------------------------------------------------------------------------------
     
-    def ajouterInputs(self,newInputs):
+    def ajouter_inputs(self,newInputs):
         '''Entrée : prend un tableau d'inputs, (les vérifie une à une?) puis les ajoute
         dans les inputs de la transaction'''
         ##vérifier que dans l'UTXO set
         self.inputs = self.inputs + newInputs
         self.nbInputs += len(newInputs)
 
-    def enleverInputs(self,delInputs):
+    def enlever_inputs(self,delInputs):
         trouve = False
         result = []
         for oldInput in delInputs:
@@ -124,14 +124,14 @@ class Transaction:
                 trouve = False
         return result
 
-    def ajouterOutputs(self,newOutputs):
+    def ajouter_outputs(self,newOutputs):
         '''Entrée : prend un tableau d'outputs, (les vérifie une à une?) puis les ajoute
         dans les outputs de la transaction'''
         ##vérifier que dans l'UTXO set
         self.outputs = self.outputs + newOutputs
         self.nbOutputs += len(newOutputs)
 
-    def enleverOutputs(self,delOutputs):
+    def enlever_outputs(self,delOutputs):
         trouve = False
         result = []
         for output in delOutputs:
@@ -162,46 +162,46 @@ class Transaction:
             sommeO += billO["montant"]
         return sommeI - sommeO
     
-    def creerMsg(self,horodatage,montant,adresse):
+    def creer_msg(self,horodatage,montant,adresse):
         return str(horodatage)+'#'+str(montant)+'#'+adresse
 
-    def verifierCoinBaseTransaction(self):
-        return (len(self.inputs) == 0) and (len(self.outputs) == 1) and self.verifierSigOutputs()
+    def verifier_coinBase_transaction(self):
+        return (len(self.inputs) == 0) and (len(self.outputs) == 1) and self.verifier_sig_outputs()
 
-    def verifierDansUtxoSet(self,sig):
+    def verifier_dans_utxoSet(self,sig):
         return self.utxo_set.is_spent(sig)
 
-    def sommePositive(self):
+    def somme_positive(self):
         return self.differenceIO()>=0
 
-    def hasherMsg(self,msg):
+    def hasher_msg(self,msg):
         zh = hashlib.sha512(msg.encode('utf-8')).digest()
         z = utils.get_int(zh,N)
         return z
 
-    def verifierSignatures(self):
-        return self.verifierSigInputs() and self.verifierSigOutputs()
+    def verifier_signatures(self):
+        return self.verifier_sig_inputs() and self.verifier_sig_outputs()
 
-    def verifierSigInputs(self):
+    def verifier_sig_inputs(self):
         valide = True
         for bill in self.inputs:
             print(bill)
             P = bill["cleAcheteur"]
-            msg = self.creerMsg(self.horodatage,bill["montant"],self.adresseAcheteur)
-            print(bill["sigAcheteur"].verifier(self.hasherMsg(msg),G,N,P))
-            valide = valide and bill["sigAcheteur"].verifier(self.hasherMsg(msg),G,N,P)
+            msg = self.creer_msg(self.horodatage,bill["montant"],self.adresseAcheteur)
+            print(bill["sigAcheteur"].verifier(self.hasher_msg(msg),G,N,P))
+            valide = valide and bill["sigAcheteur"].verifier(self.hasher_msg(msg),G,N,P)
         return valide
 
-    def verifierSigOutputs(self):
+    def verifier_sig_outputs(self):
         valide = True
         for bill in self.outputs:
             P = bill["cleVendeur"]
-            msg = self.creerMsg(self.horodatage,bill["montant"],bill["vendeur"])
-            valide = valide and bill["sigVendeur"].verifier(self.hasherMsg(msg),G,N,P)
+            msg = self.creer_msg(self.horodatage,bill["montant"],bill["vendeur"])
+            valide = valide and bill["sigVendeur"].verifier(self.hasher_msg(msg),G,N,P)
         return valide
     
     def verifier(self):
-        valide = self.sommePositive() and self.verifierSignatures()
+        valide = self.somme_positive() and self.verifier_signatures()
         #for bill in self.inputs:
         #    valide = valide and self.verifierDansUtxoSet(bill["sigAcheteur"])
         return valide
@@ -213,13 +213,13 @@ class Transaction:
 
     #Pas de set sur l'horodatage pour éviter les fraudes
 
-    def getHorodatage(self):
+    def get_horodatage(self):
         return self.horodatage
 
-    def getInputs(self):
+    def get_inputs(self):
         return self.inputs
 
-    def getOutputs(self):
+    def get_outputs(self):
         return self.outputs
     
 #------------------------------------------------------------------------------------------------------------------
@@ -227,11 +227,11 @@ class Transaction:
 #------------------------------------------------------------------------------------------------------------------
 
 
-    def setInputs(self,newInputs):
+    def set_inputs(self,newInputs):
         self.inputs = newInputs
         self.nbInputs = len(newInputs)
 
-    def setOutputs(self,newOutputs):
+    def set_outputs(self,newOutputs):
         self.outputs = newOutputs
         self.nbOutputs = len(newOutputs)
 
@@ -239,8 +239,8 @@ class Transaction:
 # Création I/O
 #------------------------------------------------------------------------------------------------------------------
 
-    def creerUneInputDico(self, montant, sigAcheteur, cleAcheteur):
+    def creer_une_input_dico(self, montant, sigAcheteur, cleAcheteur):
         return {"montant":montant, "sigAcheteur":sigAcheteur, "cleAcheteur":cleAcheteur}
 
-    def creerUneOutputDico(self, vendeur, montant, sigVendeur, cleVendeur):
+    def creer_une_output_dico(self, vendeur, montant, sigVendeur, cleVendeur):
         return {"vendeur":vendeur, "montant":montant, "sigVendeur":sigVendeur, "cleVendeur":cleVendeur}
