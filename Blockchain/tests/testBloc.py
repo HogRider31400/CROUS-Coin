@@ -30,25 +30,20 @@ example_block2 = """
 class testBloc(unittest.TestCase):
 
     def setUp(self):
-        bloc = Bloc.from_text(example_block)
-        bloc2 = Bloc.from_text(example_block2)
+        self.bloc = Bloc.from_text(example_block)
+        self.bloc2 = Bloc.from_text(example_block2)
 
     def testParseBlock(self):
 
 
-        """self.assertTrue(bloc.previous_block_hash == "aopziejazeokhazeazeaze")
-        self.assertTrue(bloc.previous_block_hash == "aopziejazeokhazeazeaze")
-        self.assertTrue(len(bloc.transactions) == 1)
-        self.assertTrue(bloc.magic_number == 10)
-
-        self.assertTrue(bloc.magic_number == None)
-        self.assertTrue(bloc.magic_number == None)"""
+        self.assertTrue(self.bloc.previous_block_hash == "aopziejazeokhazeazeaze")
+        self.assertTrue(len(self.bloc.transactions) == 0)
+        self.assertTrue(self.bloc.get_pow_number() == 10)
+        self.assertTrue(self.bloc2.get_pow_number() == None)
 
     def testMinedBloc(self):
-        """self.assertTrue(bloc.is_mined())
-        self.assertFalse(bloc2.is_mined())
-        self.assertTrue(bloc.is_mined())
-        self.assertFalse(bloc2.is_mined())"""
+        self.assertTrue(self.bloc.is_mined())
+        self.assertFalse(self.bloc2.is_mined())
 
     def testValidBloc(self):
         """self.assertFalse(bloc.is_valid())

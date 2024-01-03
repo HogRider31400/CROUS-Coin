@@ -32,8 +32,8 @@ class Bloc:
     #static
     UTXO = UTXOSet("")
 
-    def __init__(self, previous_block, transactions, coinbase_transaction=None, timestamp=None, pow_number=None):
-        self.previous_block=previous_block
+    def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None):
+        self.previous_block_hash=previous_block_hash
         self.transactions=transactions
         self.timestamp = timestamp
         self.pow_number = pow_number
@@ -43,15 +43,18 @@ class Bloc:
         h=hashlib.sha256()
         if self.pow_number==None:
             return -1
-        h.update(self.get_block_text().to_bytes(SIZE, "big"))
+        h.update(self.get_block_text().encode())
         return h.digest()
 
     def set_pow_number(self, new_pow_number):
         self.pow_number=new_pow_number
 
+    def get_pow_number(self):
+        return self.pow_number
+
     def is_mined(self):
         hashed = self.get_block_hash()
-        return hashed>=0 and hashed[0:SIZE_TARGET]==[0]*SIZE_TARGET
+        return hashed!=-1 and hashed[0:SIZE_TARGET]==[0]*SIZE_TARGET
     
     @staticmethod
     def is_mined_from_text(texte):
@@ -100,15 +103,20 @@ class Bloc:
             somme+=transaction.differenceIO()
         return somme
     
+    def get_previous_bloc_hash(self):
+        return self.previous_block_hash
+    
 
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
-    def set_coinbase_transaction(self, value, id_mineur):
+    def set_coinbase_transaction(self, value, mineur):
         self.coinbase_transaction = Transaction([], [], mineur.get_id())
 
     def get_block_text(self):
         
         def get_tx_data(tx):
+            if tx == None:
+                return None
             inputs = []
             for cur_input in tx.getInputs():
                 new_input = cur_input 
@@ -142,7 +150,7 @@ class Bloc:
 
 
         block_data = {
-            "previous_block_hash" : self.previous_block,
+            "previous_block_hash" : self.previous_block_hash,
             "timestamp" : self.timestamp,
             "coinbase_transaction" : coinbase_transaction,
             "transactions" : tx_list_data,
