@@ -29,10 +29,8 @@ NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
 
-    #static
-    UTXO = UTXOSet("")
-
-    def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs'):
+    def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs',utxo_set=""):
+        self.utxo_set = utxo_set 
         self.BLOC_FOLDER = BLOC_FOLDER
         self.previous_block_hash=previous_block_hash
         self.transactions=transactions

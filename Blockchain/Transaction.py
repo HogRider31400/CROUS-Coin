@@ -36,10 +36,8 @@ class Transaction:
         et dans l'UTXO set : ->C
     '''
 
-    #static
-    utxo_set = UTXOSet("")
-
-    def __init__(self,inputs, outputs, adresseAcheteur, horodatage=None):
+    def __init__(self,inputs, outputs, adresseAcheteur, horodatage=None,utxo_set=""):
+        self.utxo_set = utxo_set
         if (horodatage == None):
             self.horodatage = time.time()
         else :
@@ -51,7 +49,8 @@ class Transaction:
         self.adresseAcheteur = adresseAcheteur
 
     @classmethod
-    def from_text(cls,text):
+    def from_text(cls,text,utxo_set=""):
+        self.utxo_set = utxo_set
         if type(text) != dict:
             bloc_data = json.loads(text)
         else:
