@@ -21,10 +21,15 @@ Constructeurs :
 import json
 import os
 import copy
+import sys
+sys.path.append("./blocs")
+sys.path.append("..")
 
 class UTXOSet:
 
-    def __init__(self,texte, update=False):
+    def __init__(self,texte, update=False,UTXO_FOLDER = './blocs/',BLOC_FOLDER = './utxo/'):
+        self.BLOC_FOLDER = BLOC_FOLDER
+        self.UTXO_FOLDER = UTXO_FOLDER
         self.load_set(texte)
         if update:
             self.update_all()
@@ -32,9 +37,12 @@ class UTXOSet:
     def load_set(self,texte):
         if texte == "" or texte == {}:
             self.arbre = {}
-            self.registre = {}
+            self.registre = {
+                "user" : {},
+                "sig" : {},
+                "block_hash" : {}
+            }
             self.current_block_hash = None
-            self.update_all()
             self.update_all()
         else:
             if type(texte) != dict:
@@ -47,11 +55,11 @@ class UTXOSet:
 
     def get_next_block(self):
         
-        block_list = os.listdir("./blocs")
+        block_list = os.listdir(self.BLOC_FOLDER)
 
         for block_hash in block_list:
 
-            with open("./blocs/"+block_hash) as f:
+            with open(self.BLOC_FOLDER+block_hash) as f:
                 content = f.read()
                 content_data = json.loads(content)
                 if content_data["previous_block_hash"] == self.current_block_hash:
@@ -63,7 +71,7 @@ class UTXOSet:
         if not (next_block_hash):
             return False
 
-        with open("./blocs/"+next_block_hash) as f:
+        with open(self.BLOC_FOLDER+next_block_hash) as f:
             next_block_content = f.read()
         next_block_data = json.loads(next_block_content)
 
@@ -136,18 +144,18 @@ class UTXOSet:
             #TODO : partie block_hash
 
     def is_spent(self,sig):
-        if sig in registre["sig"]:
+        if sig in self.registre["sig"]:
             return False
         return True
 
     def get_user_utxos(self,user):
-        if user in registre["user"]:
-            return registre["user"][user]
+        if user in self.registre["user"]:
+            return self.registre["user"][user]
         return []
 
     def get_block_utxos(self,block_hash):
-        if block_hash in registre["block_hash"]:
-            return registre["block_hash"][block_hash]
+        if block_hash in self.registre["block_hash"]:
+            return self.registre["block_hash"][block_hash]
         return []
 
     def try_update_tree(self,transaction):
@@ -155,7 +163,7 @@ class UTXOSet:
         return update_success
 
     def rollback(self):
-        with open("./utxo/data") as f:
+        with open(self.UTXO_FOLDER+"data") as f:
             last_saved_content = f.read()
             self.load_set(last_saved_content)
 
@@ -169,7 +177,7 @@ class UTXOSet:
 
         new_set_content = json.dumps(new_set_data)
 
-        with open("./utxo/data","w") as f:
+        with open(self.UTXO_FOLDER+"data","w") as f:
             f.write(new_set_content)
 
 

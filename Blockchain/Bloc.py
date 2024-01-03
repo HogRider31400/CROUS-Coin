@@ -32,7 +32,8 @@ class Bloc:
     #static
     UTXO = UTXOSet("")
 
-    def __init__(self, previous_block, transactions, coinbase_transaction=None, timestamp=None, pow_number=None):
+    def __init__(self, previous_block, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs'):
+        self.BLOC_FOLDER = BLOC_FOLDER
         self.previous_block=previous_block
         self.transactions=transactions
         self.timestamp = timestamp
@@ -153,7 +154,7 @@ class Bloc:
     
     def save(self):
 
-        with open("./blocs/"+self.get_block_hash(),"w") as f:
+        with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
             f.write(self.get_block_text())
 
     @classmethod
