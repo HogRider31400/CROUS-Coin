@@ -3,6 +3,7 @@ import time
 import hashlib
 import sys
 sys.path.append("..")
+sys.path.append("../EllipticCurves")
 import utils
 from UTXOSet import UTXOSet
 from Signature import Signature
