@@ -132,13 +132,15 @@ class Utilisateur:
         for transaction in transactions:
             print("- "+transaction.__repr__()+"\n")
 
-    def entrer_un_nombre(self,message,min,max=-1,io=False):
+    def entrer_un_nombre(self,message,min,max=-1):
         userInput = min - 1
         while (userInput < min or (userInput > max and max != -1)):
             try:
                 msg = "Veuillez entrer " + message
                 if (max != -1):
-                    msg += " (entre " + str(min) + " et " + str(max) + ") :"
+                    msg += " (entre " + str(min) + " et " + str(max) + ") :\n"
+                else:
+                    msg += " :\n"
                 userInput = int(input(msg))
             except:
                 print("Cette entrée ne correspond pas à un chiffre.\n")
@@ -148,6 +150,7 @@ class Utilisateur:
         montant = self.entrer_un_nombre("le montant",0)
 
         vieilles_outputs = self.utxo_set.get_user_utxos(self.wallet)
+        vieille_output = None
         trouve = False
         i=0
         while(i<len(vieilles_outputs) and not trouve):
@@ -155,8 +158,11 @@ class Utilisateur:
             if (vieille_output["montant"] == montant):
                 trouve = True
             i+=1
-        inputT = transaction.creer_une_input_dico(montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
-        transaction.ajouter_inputs([inputT])
+        if (vieille_output != None):
+            print("VIEILLE OUTPUT N'EST PAS NONE")
+            inputT = transaction.creer_une_input_dico(montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
+            transaction.ajouter_inputs([inputT])
+        return vieille_output
     
     def entrer_output(self, transaction):
         montant = self.entrer_un_nombre("le montant",0)
@@ -166,16 +172,31 @@ class Utilisateur:
         transaction.ajouter_outputs([outputT])
 
     def menu_transaction(self):
+        trans_invalide = False
         transaction = self.creer_transaction([],[])
         self.afficher_transactions_anterieures()
         nbTransAnterieures = self.entrer_un_nombre("le nombre de transactions que vous souhaitez utiliser :",0,self.NBMAXINPUTS)
-        for i in range(nbTransAnterieures):
-            self.entrer_input(transaction)
-        
-        nbDepenses = self.entrer_un_nombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
-        for j in range(nbDepenses):
-            self.entrer_output(transaction)
-        transTexte = transaction.to_text()
+        if (nbTransAnterieures == 0):
+            self.menu()
+        i = 0
+        while(i < nbTransAnterieures and not trans_invalide):
+            input = self.entrer_input(transaction)
+            if (input == None):
+                trans_invalide = True
+            i+=1
+
+        if (not trans_invalide):
+            nbDepenses = self.entrer_un_nombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
+            j = 0
+            while(j < nbDepenses and not trans_invalide):
+                output = self.entrer_output(transaction)
+                if (output == None):
+                    trans_invalide = True
+                j+=1
+        if (trans_invalide):
+            print("Transaction invalide veuillez recommencer. ")
+        else:
+            transTexte = transaction.to_text()
 
         ##On sauvegarde transTexte dans un fichier commun
         try:

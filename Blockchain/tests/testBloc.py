@@ -8,6 +8,7 @@ from Signature import Signature
 from Point import Point
 from CourbeElliptique import CourbeElliptique
 from utils import courbe
+from Utilisateur import Utilisateur
 
 example_block = """
         {
@@ -23,7 +24,7 @@ example_block = """
 example_block2 = """
         {
             "previous_block_hash" : "aopziejazeokhazeazeaze",
-            "timestamp" : 19783097830984,
+            "timestamp" : null,
             "transactions" : [
                 
             ],
@@ -49,6 +50,7 @@ class testBloc(unittest.TestCase):
         self.bloc = Bloc.from_text(example_block)
         self.bloc2 = Bloc.from_text(example_block2)
         self.paiementAB = Transaction.Transaction(tabI,tabO, "Alice",3456789.232323)
+        self.utilisateur = Utilisateur(1)
         
 
     def testParseBlock(self):
@@ -60,23 +62,39 @@ class testBloc(unittest.TestCase):
         self.assertTrue(self.bloc2.get_pow_number() == None)
 
     def testHashBloc(self):
-        self.hash1 = self.bloc.get_block_hash()
-        print("hash bloc 1: ")
-        print(self.hash1)
-        self.assertTrue(self.hash1 == self.bloc.get_block_hash())
-        self.bloc.set_pow_number(13)
-        self.assertFalse(self.hash1 == self.bloc.get_block_hash())
-        self.bloc.set_pow_number(10)
-        self.assertTrue(self.hash1 == self.bloc.get_block_hash())
+        hash1 = self.bloc.get_block_hash()
+        hash2 = self.bloc2.get_block_hash()
+        self.assertTrue(hash1 == self.bloc.get_block_hash())
+        self.assertTrue(hash2 == -1)
+        self.bloc2.set_pow_number(13)
+        hash2 = self.bloc2.get_block_hash()
+        self.assertTrue(hash2 !=-1)
+        self.assertTrue(hash2 != hash1)
 
 
     def testMinedBloc(self):
-        """self.assertTrue(self.bloc.is_mined())
-        self.assertFalse(self.bloc2.is_mined())"""
+        self.assertFalse(self.bloc2.is_mined())
+        #a modifier 
+        self.assertTrue(self.bloc2.get_size_target()<3)
+        self.bloc2.set_pow_number(23)
+        self.assertFalse(self.bloc2.is_mined())
+        #ici avec 26 on a deux 0 en début
+        self.bloc2.set_pow_number(26)
+        self.assertTrue(self.bloc2.is_mined())
 
     def testValidBloc(self):
-        """self.assertFalse(bloc.is_valid())
-        self.assertFalse(bloc2.is_valid())"""
+        """self.assertFalse(self.bloc.is_valid())
+        self.assertFalse(self.bloc2.is_valid())
+        self.bloc2.set_pow_number(26)
+        self.assertTrue(self.bloc2.is_valid())"""
+
+    def testSetCoinbaseTransaction(self):
+        self.assertTrue(self.bloc2.get_coinbase_transaction()==None)
+        self.bloc2.set_coinbase_transaction(10, self.utilisateur)
+        ct1 = self.bloc2.get_coinbase_transaction()
+        self.assertTrue(ct1!=None)
+        self.bloc2.set_coinbase_transaction(4, self.utilisateur)
+        self.assertTrue(ct1!=self.bloc2.get_coinbase_transaction())
 
 
 

@@ -26,7 +26,7 @@ from UTXOSet import UTXOSet
 import os
 
 SIZE = 32
-SIZE_TARGET = 1
+SIZE_TARGET = 3
 NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
@@ -85,6 +85,9 @@ class Bloc:
     def get_transactions(self):
         return self.transactions
     
+    def get_coinbase_transaction(self):
+        return self.coinbase_transaction
+    
     @staticmethod
     def get_size_target():
         return SIZE_TARGET
@@ -138,12 +141,13 @@ class Bloc:
         il faut rajouter la vérification du bloc précédent.
     """
     def is_valid(self):
-        self.transactions_valid()
+        if not self.transactions_valid():
+            print("Non valide: transactions invalides.")
         if not self.is_mined():
             print("Non valide: bloc pas miné.")
             return False
         if not self.previous_bloc_is_founded():
-            print("Non valide: precedent bloc pas trouvé")
+            print("Non valide: precedent bloc pas trouvé.")
             return False
         return True
 
