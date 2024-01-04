@@ -92,10 +92,18 @@ class Bloc:
     def set_coinbase_transaction(self, value, mineur):
         self.coinbase_transaction = Transaction([], [], mineur.get_id())
 
+    #methode qui permet de sceller le bloc
+    def set_timestamp(self):
+        if self.is_valid() and self.timestamp==None:
+            self.timestamp = time.time()
+
     #-----------------------------------------------------------#
     #-------------------------- State --------------------------#
     #-----------------------------------------------------------#
-        
+    
+    def is_finished(self):
+        return self.timestamp!=None
+
     def is_mined(self):
         hashed = self.get_block_hash()
         return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
@@ -114,7 +122,6 @@ class Bloc:
         self.transactions_valid()
         if not self.is_mined():
             return False
-        self.timestamp = time.time()
         return True
 
     def transactions_valid(self):
