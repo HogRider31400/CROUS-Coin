@@ -85,16 +85,25 @@ class Bloc:
     #-----------------------------------------------------------#
 
     def set_pow_number(self, new_pow_number):
+        if self.is_finished():
+            print("Erreur: bloc fermé, plus de modifications possibles")
+            return
         self.pow_number=new_pow_number
 
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
     def set_coinbase_transaction(self, value, mineur):
+        if self.is_finished():
+            print("Erreur: bloc fermé, plus de modifications possibles")
+            return
         self.coinbase_transaction = Transaction([], [], mineur.get_id())
 
     #methode qui permet de sceller le bloc
     def set_timestamp(self):
-        if self.is_valid() and self.timestamp==None:
+        if self.is_finished():
+            print("Erreur: bloc fermé, plus de modifications possibles")
+            return
+        if self.is_valid():
             self.timestamp = time.time()
 
     #-----------------------------------------------------------#
@@ -136,12 +145,18 @@ class Bloc:
     
     
     def maj_transactions(self):
+        if self.is_finished():
+            print("Erreur: bloc fermé, plus de modifications possibles")
+            return 
         for transaction in self.transactions:
             if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
                 self.transactions.remove(transaction)
         self.UTXO.save()
     
     def add_transaction(self, transaction):
+        if self.is_finished():
+            print("Erreur: bloc fermé, plus de modifications possibles")
+            return
         if len(self.transactions)<NB_MAX_TRANSACTIONS and self.timestamp!=None:
             self.transactions.append(transaction)
         else:
