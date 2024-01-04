@@ -195,7 +195,7 @@ class Bloc:
             for cur_output in tx.get_outputs():
                 new_output = cur_output
                 new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
-                new_output["sigVendeur"] = cur_output["sigVendeur"].get_coords()
+                new_output["sigVendeur"] = cur_output["sigVendeur"].get_sig()
                 outputs.append(new_output)
             
             return {
