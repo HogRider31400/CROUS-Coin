@@ -81,8 +81,10 @@ class testBloc(unittest.TestCase):
         self.assertTrue(self.bloc2.is_mined())
 
     def testValidBloc(self):
-        """self.assertFalse(bloc.is_valid())
-        self.assertFalse(bloc2.is_valid())"""
+        """self.assertFalse(self.bloc.is_valid())
+        self.assertFalse(self.bloc2.is_valid())
+        self.bloc2.set_pow_number(26)
+        self.assertTrue(self.bloc2.is_valid())"""
 
 
 

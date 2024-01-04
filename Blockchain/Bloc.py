@@ -132,12 +132,13 @@ class Bloc:
         il faut rajouter la vérification du bloc précédent.
     """
     def is_valid(self):
-        self.transactions_valid()
+        if not self.transactions_valid():
+            print("Non valide: transactions invalides.")
         if not self.is_mined():
             print("Non valide: bloc pas miné.")
             return False
         if not self.previous_bloc_is_founded():
-            print("Non valide: precedent bloc pas trouvé")
+            print("Non valide: precedent bloc pas trouvé.")
             return False
         return True
 
