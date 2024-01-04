@@ -3,7 +3,7 @@ import json
 import base64
 import hashlib
 
-CHEMINACCESTX = "./Users/transactions_en_cours.py"
+CHEMINACCESTX = "./Users/transactions_en_cours"
 
 def dossier_existe(chemin_dossier):
     return os.path.exists(chemin_dossier) and os.path.isdir(chemin_dossier)

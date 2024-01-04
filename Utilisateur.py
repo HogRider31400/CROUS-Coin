@@ -125,15 +125,18 @@ class Utilisateur:
         return Transaction(inputs, outputs, self.wallet, horodatage,utxo_set=self.utxo_set)
     
     def afficher_transactions_anterieures(self):
-        print("Vos transactions : blablabla à récupérer de l'UTXO Set....")
+        print("Vos transactions :\n")
+        transactions = self.utxo_set.get_user_utxos(self.wallet)
+        for transaction in transactions:
+            print("- "+transaction.__repr__()+"\n")
 
-    def entrer_un_nombre(self,message,min,max=-1):
+    def entrer_un_nombre(self,message,min,max=-1,io=False):
         userInput = min - 1
         while (userInput < min or (userInput > max and max != -1)):
             try:
                 msg = "Veuillez entrer " + message
                 if (max != -1):
-                    msg += " (entre " + min + " et " + max + ") :"
+                    msg += " (entre " + str(min) + " et " + str(max) + ") :"
                 userInput = int(input(msg))
             except:
                 print("Cette entrée ne correspond pas à un chiffre.\n")
@@ -163,7 +166,7 @@ class Utilisateur:
     def menu_transaction(self):
         transaction = self.creer_transaction([],[])
         self.afficher_transactions_anterieures()
-        nbTransAnterieures = self.entrer_un_nombre("le nombre de transactions que vous souhaitez utiliser :",1,self.NBMAXINPUTS)
+        nbTransAnterieures = self.entrer_un_nombre("le nombre de transactions que vous souhaitez utiliser :",0,self.NBMAXINPUTS)
         for i in range(nbTransAnterieures):
             self.entrer_input(transaction)
         
@@ -171,8 +174,11 @@ class Utilisateur:
         for j in range(nbDepenses):
             self.entrer_output(transaction)
         transTexte = transaction.to_text()
+
+        ##On sauvegarde transTexte dans un fichier commun
         fichier = open(CHEMINACCESTX, "a")
-        ##Sauvegarder transTexte dans un fichier commun
+        fichier.write(transTexte)
+        fichier.close()
 
 
     def menu(self):
