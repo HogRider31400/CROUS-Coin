@@ -26,7 +26,7 @@ from UTXOSet import UTXOSet
 import os
 
 SIZE = 32
-SIZE_TARGET = 1
+SIZE_TARGET = 3
 NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
