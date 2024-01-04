@@ -7,7 +7,7 @@ from ClePrivee import ClePrivee
 from UTXOSet import UTXOSet
 from Transaction import Transaction
 from Signature import Signature
-from utils_user import dossier_existe,hash_sha256,get_chain_length
+from utils_user import dossier_existe,hash_sha256,get_chain_length,CHEMINACCESTX
 import json
 
 class Utilisateur:
@@ -150,15 +150,15 @@ class Utilisateur:
             if (vieille_output["montant"] == montant):
                 trouve = True
             i+=1
-        inputT = transaction.creer_une_input_dico(self, montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
+        inputT = transaction.creer_une_input_dico(montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
         transaction.ajouter_inputs([inputT])
     
     def entrer_output(self, transaction):
         montant = self.entrer_un_nombre("le montant",0)
         adresseVendeur = input("Entrez l'adresse de celui à qui vous voulez donner de l'argent :")
         msgHashe = transaction.hasher_msg(transaction.creer_message(transaction.get_horodatage(),montant,adresseVendeur))
-        outputT = transaction.creer_une_input_dico(self, montant, self.private_key.signer(msgHashe), self.private_key.point)
-        transaction.ajouter_inputs([outputT])
+        outputT = transaction.creer_une_output_dico(adresseVendeur, montant, self.private_key.signer(msgHashe), self.private_key.point)
+        transaction.ajouter_outputs([outputT])
 
     def menu_transaction(self):
         transaction = self.creer_transaction([],[])
@@ -170,6 +170,9 @@ class Utilisateur:
         nbDepenses = self.entrer_un_nombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
         for j in range(nbDepenses):
             self.entrer_output(transaction)
+        transTexte = transaction.to_text()
+        fichier = open(CHEMINACCESTX, "a")
+        ##Sauvegarder transTexte dans un fichier commun
 
 
     def menu(self):
