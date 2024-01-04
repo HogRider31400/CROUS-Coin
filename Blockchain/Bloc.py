@@ -24,7 +24,7 @@ from Transaction import Transaction
 from UTXOSet import UTXOSet
 
 SIZE = 32
-SIZE_TARGET = 3
+SIZE_TARGET = 1
 NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
@@ -45,7 +45,7 @@ class Bloc:
         if self.pow_number==None:
             return -1
         h.update(self.get_block_text().encode())
-        return h.digest()
+        return h.hexdigest()
 
     def set_pow_number(self, new_pow_number):
         self.pow_number=new_pow_number
@@ -55,7 +55,7 @@ class Bloc:
 
     def is_mined(self):
         hashed = self.get_block_hash()
-        return hashed!=-1 and hashed[0:SIZE_TARGET]==[0]*SIZE_TARGET
+        return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
     
     @staticmethod
     def is_mined_from_text(texte):
