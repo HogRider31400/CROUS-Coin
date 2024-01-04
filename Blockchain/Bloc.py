@@ -37,6 +37,26 @@ class Bloc:
         self.timestamp = timestamp
         self.pow_number = pow_number
         self.coinbase_transaction = coinbase_transaction
+
+    @classmethod
+    def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
+        bloc_data = json.loads(text)
+
+        previous_block_hash = bloc_data["previous_block_hash"]
+        timestamp = bloc_data["timestamp"]
+        transactions_data = bloc_data["transactions"]
+        transactions = []
+        for cur_trans in transactions_data:
+            transactions.append(Transaction.from_text(cur_trans))
+        coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
+        pow_number = bloc_data["pow_number"]
+
+
+        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)
+
+    #-----------------------------------------------------------#
+    #------------------------- Getters -------------------------#
+    #-----------------------------------------------------------#
         
     def get_block_hash(self):
         h=hashlib.sha256()
@@ -44,13 +64,38 @@ class Bloc:
             return -1
         h.update(self.get_block_text().encode())
         return h.hexdigest()
+    
+    def get_pow_number(self):
+        return self.pow_number
+    
+    def get_letfovers(self):
+        somme=0
+        for transaction in self.transactions:
+            somme+=transaction.differenceIO()
+        return somme
+    
+    def get_previous_bloc_hash(self):
+        return self.previous_block_hash
+
+    def get_transactions(self):
+        return self.transactions
+    
+    #-----------------------------------------------------------#
+    #------------------------- Setters -------------------------#
+    #-----------------------------------------------------------#
 
     def set_pow_number(self, new_pow_number):
         self.pow_number=new_pow_number
 
-    def get_pow_number(self):
-        return self.pow_number
+    #transaction sans input à faire 
+    #ajouter en plus le surplus de toutes les tx
+    def set_coinbase_transaction(self, value, mineur):
+        self.coinbase_transaction = Transaction([], [], mineur.get_id())
 
+    #-----------------------------------------------------------#
+    #-------------------------- State --------------------------#
+    #-----------------------------------------------------------#
+        
     def is_mined(self):
         hashed = self.get_block_hash()
         return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
@@ -59,30 +104,41 @@ class Bloc:
     def is_mined_from_text(texte):
         h=hashlib.sha256()
         h.update(texte.to_bytes(SIZE, "big"))
-        hashed = h.digest()
-        return hashed[0:SIZE_TARGET]==[0]*SIZE_TARGET
+        hashed = h.hexdigest()
+        return str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
+    
+    """
+        il faut rajouter la vérification du bloc précédent.
+    """
+    def is_valid(self):
+        self.transactions_valid()
+        if not self.is_mined():
+            return False
+        self.timestamp = time.time()
+        return True
+
+    def transactions_valid(self):
+        for transaction in self.transactions:
+            if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
+                return False
+        return True
+    
+    #-----------------------------------------------------------#
+    #------------------------- Others --------------------------#
+    #-----------------------------------------------------------#
+    
+    
+    def maj_transactions(self):
+        for transaction in self.transactions:
+            if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
+                self.transactions.remove(transaction)
+        self.UTXO.save()
     
     def add_transaction(self, transaction):
         if len(self.transactions)<NB_MAX_TRANSACTIONS and self.timestamp!=None:
             self.transactions.append(transaction)
         else:
             print("Nombre max de transactions atteint.")
-    
-    """
-        il faut rajouter la vérification du bloc précédent.
-    """
-    def is_valid(self):
-        self.maj_transactions()
-        if not self.is_mined():
-            return False
-        self.timestamp = time.time()
-        return True
-
-    def maj_transactions(self):
-        for transaction in self.transactions:
-            if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
-                self.transactions.remove(transaction)
-        self.UTXO.save()
 
     def __repr__(self):
         output=""
@@ -96,20 +152,12 @@ class Bloc:
         output.append("Proof of work: " + self.pow_number + "\n")
         return output
     
-    def get_letfovers(self):
-        somme=0
-        for transaction in self.transactions:
-            somme+=transaction.differenceIO()
-        return somme
     
-    def get_previous_bloc_hash(self):
-        return self.previous_block_hash
     
-
-    #transaction sans input à faire 
-    #ajouter en plus le surplus de toutes les tx
-    def set_coinbase_transaction(self, value, mineur):
-        self.coinbase_transaction = Transaction([], [], mineur.get_id())
+    #-----------------------------------------------------------#
+    #------------------------- Saving --------------------------#
+    #-----------------------------------------------------------#
+    
 
     def get_block_text(self):
         
@@ -163,18 +211,4 @@ class Bloc:
         with open(self.UTXO_FOLDER+self.get_block_hash(),"w") as f:
             f.write(self.get_block_text())
 
-    @classmethod
-    def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
-        bloc_data = json.loads(text)
-
-        previous_block_hash = bloc_data["previous_block_hash"]
-        timestamp = bloc_data["timestamp"]
-        transactions_data = bloc_data["transactions"]
-        transactions = []
-        for cur_trans in transactions_data:
-            transactions.append(Transaction.from_text(cur_trans))
-        coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
-        pow_number = bloc_data["pow_number"]
-
-
-        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)
+    
