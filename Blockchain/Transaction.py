@@ -50,11 +50,10 @@ class Transaction:
 
     @classmethod
     def from_text(cls,text,utxo_set=""):
-        self.utxo_set = utxo_set
         if type(text) != dict:
             bloc_data = json.loads(text)
         else:
-            block_data = text
+            bloc_data = text
         horodatage = bloc_data["horodatage"]
         adresse_acheteur = bloc_data["acheteur"]
         inputs_data = bloc_data["inputs"]
@@ -243,3 +242,30 @@ class Transaction:
 
     def creer_une_output_dico(self, vendeur, montant, sigVendeur, cleVendeur):
         return {"vendeur":vendeur, "montant":montant, "sigVendeur":sigVendeur, "cleVendeur":cleVendeur}
+    
+#------------------------------------------------------------------------------------------------------------------
+# Transaction en texte
+#------------------------------------------------------------------------------------------------------------------
+
+    def to_text(self):
+        if self == None:
+            return None
+        for cur_input in self.inputs:
+            new_input = cur_input 
+            new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
+            new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
+            self.inputs.ajouter_inputs([new_input])
+
+        for cur_output in self.outputs:
+            new_output = cur_output
+            new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
+            new_output["sigVendeur"] = cur_output["sigVendeur"].get_sig()
+            self.outputs.ajouter_inputs([new_output])
+            
+        dico_trans = {
+            "horodatage" : self.horodatage,
+            "inputs" : self.inputs,
+            "outputs" : self.outputs
+        }
+
+        return json.dumps(dico_trans)
