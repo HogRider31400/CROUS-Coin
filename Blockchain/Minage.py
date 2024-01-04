@@ -13,8 +13,10 @@ import hashlib
 COUT = 10
 
 class Minage:
-    def __init__(self, bloc,id_user, set_tested=set()):
+    def __init__(self, bloc,id_user,user, set_tested=set()):
         self.bloc=bloc
+        self.private_key = user.private_key
+        self.user_object = user
         self.bloc_text = bloc.get_block_text()
         self.id_user=id_user
         self.set_tested=set_tested

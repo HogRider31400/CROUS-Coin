@@ -7,6 +7,7 @@ from ClePrivee import ClePrivee
 from UTXOSet import UTXOSet
 from Transaction import Transaction
 from Signature import Signature
+from Minage import Minage
 from utils_user import dossier_existe,hash_sha256,get_chain_length
 import json
 
@@ -62,7 +63,7 @@ class Utilisateur:
 
         for user in user_list:
             
-            user_blocs = os.listdir("./Users/"+user+"/blocs")
+            user_blocs = os.listdir("./Users/"+user+"/blocs/")
 
             blocs_pas_dans = []
             a_info_en_plus = False
@@ -171,7 +172,7 @@ class Utilisateur:
         for j in range(nbDepenses):
             self.entrer_output(transaction)
 
-        
+
 
     def menu(self):
 
@@ -200,6 +201,8 @@ class Utilisateur:
 
             if choix==1:
                 self.menu_transaction()
+            elif choix==2:
+                mineur = Minage()
             elif choix==4: return
             elif choix == 0:
                 print("Votre solde est :",sum(self.utxo_set.get_block_utxos(self.wallet)))
