@@ -8,9 +8,13 @@ from UTXOSet import UTXOSet
 from Transaction import Transaction
 from Signature import Signature
 from Minage import Minage
-from utils_user import dossier_existe,hash_sha256,get_chain_length,CHEMINACCESTX
+from utils_user import dossier_existe,hash_sha256,get_chain_length,CHEMINACCESTX,nb_transac_dernier_bloc
 import json
 from Bloc import Bloc
+from CourbeElliptique import CourbeElliptique
+from utils import courbe
+from Point import Point
+CE = CourbeElliptique(*courbe)
 
 class Utilisateur:
 
@@ -57,18 +61,19 @@ class Utilisateur:
         cur_blocs = set(os.listdir(self.DOSSIER+"/blocs/"))
 
         user_list = os.listdir("./Users/")
-
+        print(user_list)
         cur_block_user = self.utxo_set.current_block_hash
 
         to_check = []
 
         for user in user_list:
-            
+            if user == "transactions_en_cours" or user == self.wallet:
+                continue
             user_blocs = os.listdir("./Users/"+user+"/blocs/")
-
+            print(user,user_blocs)
             blocs_pas_dans = []
             a_info_en_plus = False
-            contient_cur_block = False
+            contient_cur_block = (cur_block_user == None)
             corresp_graphe = {}
 
             for cur_bloc in user_blocs:
@@ -77,7 +82,7 @@ class Utilisateur:
                     file_data = f.read()
                 
                 file_content = json.loads(file_data)
-                prev_hash = file_content["previous_hash_block"]
+                prev_hash = file_content["previous_block_hash"]
                 if not prev_hash in corresp_graphe:
                     corresp_graphe[prev_hash] = []
                 corresp_graphe[prev_hash].append(cur_bloc)
@@ -93,15 +98,17 @@ class Utilisateur:
                 #On check que la blockchain a une évolution de son utxo_set valide
                 #TODO : optimiser, mais pas le courage là.
                 #Piste d'optimisation : partir de l'utxoset que l'utilsateur a et vérifier à partir de là
-
+                print("SALUUUUUUUUUUUUUUUUUT")
+                print(user)
                 is_valid = UTXOSet("",False,self.DOSSIER+"temp/","./Users/"+user+"/blocs/").update_all()
+                print(is_valid)
                 if is_valid:
                     to_check.append((get_chain_length(corresp_graphe),nb_transac_dernier_bloc(user,blocs_pas_dans),blocs_pas_dans))
-        
+        print("SALUUUUUUUUUUUUUUUT")
         #Soit elle est à jour soit elle est cassée
         if len(to_check) == 0:
             return
-
+        print(to_check)
         #ici on a que des chaines valides ce qui permet une certaine épuration
         to_check.sort(key=lambda x: x[0])
         max_l = to_check[-1][0]
@@ -160,16 +167,17 @@ class Utilisateur:
             i+=1
         if (vieille_output != None):
             print("VIEILLE OUTPUT N'EST PAS NONE")
-            inputT = transaction.creer_une_input_dico(montant, vieille_output["sigVendeur"], vieille_output["cleVendeur"])
+            inputT = transaction.creer_une_input_dico(montant, Signature(*vieille_output["sigVendeur"]), Point(*vieille_output["cleVendeur"],CE))
             transaction.ajouter_inputs([inputT])
         return vieille_output
     
     def entrer_output(self, transaction):
         montant = self.entrer_un_nombre("le montant",0)
         adresseVendeur = input("Entrez l'adresse de celui à qui vous voulez donner de l'argent :")
-        msgHashe = transaction.hasher_msg(transaction.creer_message(transaction.get_horodatage(),montant,adresseVendeur))
+        msgHashe = transaction.hasher_msg(transaction.creer_msg(transaction.get_horodatage(),montant,adresseVendeur))
         outputT = transaction.creer_une_output_dico(adresseVendeur, montant, self.private_key.signer(msgHashe), self.private_key.point)
         transaction.ajouter_outputs([outputT])
+        return True
 
     def menu_transaction(self):
         trans_invalide = False
@@ -180,8 +188,8 @@ class Utilisateur:
             self.menu()
         i = 0
         while(i < nbTransAnterieures and not trans_invalide):
-            input = self.entrer_input(transaction)
-            if (input == None):
+            cur_input = self.entrer_input(transaction)
+            if (cur_input == None):
                 trans_invalide = True
             i+=1
 
@@ -189,9 +197,9 @@ class Utilisateur:
             nbDepenses = self.entrer_un_nombre("le nombre de dépenses que vous comptez faire avec cet argent :",0,self.NBMAXOUTPUTS)
             j = 0
             while(j < nbDepenses and not trans_invalide):
-                output = self.entrer_output(transaction)
-                if (output == None):
-                    trans_invalide = True
+                cur_output = self.entrer_output(transaction)
+                if (cur_output == None):
+                    trans_invalide = trans_invalide and True
                 j+=1
         if (trans_invalide):
             print("Transaction invalide veuillez recommencer. ")
@@ -242,6 +250,8 @@ class Utilisateur:
                 try:
                     with open(CHEMINACCESTX) as f:
                         tx_attente = json.loads(f.read())
+                    with open(CHEMINACCESTX,"w") as f:
+                        pass
                 except:
                     tx_attente = []
                 
@@ -259,11 +269,21 @@ class Utilisateur:
 
                 mineur.miner()
 
+                bo.save()
+                self.utxo_set.update_next_block()
+                self.utxo_set.save()
+
             elif choix==4: return
             elif choix == 0:
-                print("Votre solde est :",sum(self.utxo_set.get_block_utxos(self.wallet)))
-
+                t = self.utxo_set.get_user_utxos(self.wallet)
+                s = 0
+                print(t)
+                for elem in t:
+                    s += elem["montant"]
+                print("Votre solde est ",s)
+            elif choix == 3:
+                self.update_blockchain()
             else:
                 print("Jsp pas implémenté")
 
-a = Utilisateur(2)
+a = Utilisateur(3)

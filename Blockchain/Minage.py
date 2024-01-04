@@ -63,7 +63,7 @@ class Minage:
         self.bloc.set_pow_number(number)
 
     def test_number(self, number):
-        h = hashlib.sha256()
+        h = hashlib.sha512()
         texte = json.loads(self.bloc_text)
         texte["pow_number"] = number
         h.update(json.dumps(texte).encode())

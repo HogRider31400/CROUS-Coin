@@ -135,6 +135,7 @@ class Bloc:
 
     def is_mined(self):
         hashed = self.get_block_hash()
+        print(hashed)
         return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
     
     """
@@ -160,7 +161,7 @@ class Bloc:
     def previous_bloc_is_founded(self):
         if self.previous_block_hash == None:
             return True
-        for b in os.listdir('./blocs/'):
+        for b in os.listdir(self.BLOC_FOLDER):
             if b == self.previous_block_hash:
                 return True
         return False
@@ -215,20 +216,21 @@ class Bloc:
             inputs = []
             for cur_input in copy.deepcopy(tx.get_inputs()):
                 new_input = cur_input 
-                new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
-                new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
+                new_input["cleAcheteur"] = tuple(cur_input["cleAcheteur"].get_coords())
+                new_input["sigAcheteur"] = tuple(cur_input["sigAcheteur"].get_sig())
                 inputs.append(new_input)
 
             outputs = []
 
             for cur_output in copy.deepcopy(tx.get_outputs()):
                 new_output = cur_output
-                new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
-                new_output["sigVendeur"] = cur_output["sigVendeur"].get_sig()
+                new_output["cleVendeur"] = tuple(cur_output["cleVendeur"].get_coords())
+                new_output["sigVendeur"] = tuple(cur_output["sigVendeur"].get_sig())
                 outputs.append(new_output)
             
             return {
                     "horodatage" : tx.get_horodatage(),
+                    "acheteur" : tx.adresseAcheteur,
                     "inputs" : inputs,
                     "outputs" : outputs
                 }
@@ -258,7 +260,7 @@ class Bloc:
     
     def save(self):
 
-        with open(self.UTXO_FOLDER+self.get_block_hash(),"w") as f:
+        with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
             f.write(self.get_block_text())
 
     
