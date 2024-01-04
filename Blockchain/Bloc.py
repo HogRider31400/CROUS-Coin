@@ -152,6 +152,8 @@ class Bloc:
         return True
     
     def previous_bloc_is_founded(self):
+        if self.previous_block_hash == None:
+            return True
         for b in os.listdir('./blocs/'):
             if b == self.previous_block_hash:
                 return True
