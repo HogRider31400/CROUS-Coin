@@ -23,6 +23,7 @@ import time
 from Transaction import Transaction
 from Utilisateur import Utilisateur
 from UTXOSet import UTXOSet
+import os
 
 SIZE = 32
 SIZE_TARGET = 1
@@ -141,6 +142,12 @@ class Bloc:
             if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
                 return False
         return True
+    
+    def previous_bloc_is_founded(self):
+        for b in os.listdir('./blocs/'):
+            if b == self.previous_block_hash:
+                return True
+        return False
     
     #-----------------------------------------------------------#
     #------------------------- Others --------------------------#
