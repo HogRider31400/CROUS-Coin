@@ -184,7 +184,7 @@ class Bloc:
             if tx == None:
                 return None
             inputs = []
-            for cur_input in tx.getInputs():
+            for cur_input in tx.get_inputs():
                 new_input = cur_input 
                 new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
                 new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
@@ -192,14 +192,14 @@ class Bloc:
 
             outputs = []
 
-            for cur_output in tx.getOutputs():
+            for cur_output in tx.get_outputs():
                 new_output = cur_output
                 new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
                 new_output["sigVendeur"] = cur_output["sigVendeur"].get_coords()
                 outputs.append(new_output)
             
             return {
-                    "horodatage" : tx.getHorodatage(),
+                    "horodatage" : tx.get_horodatage(),
                     "inputs" : inputs,
                     "outputs" : outputs
                 }

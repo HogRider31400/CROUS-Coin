@@ -119,7 +119,7 @@ class Utilisateur:
         
         self.utxo_set.update_all()
         
-
+    
 
     def creer_transaction(self,inputs, outputs, horodatage=None):
         return Transaction(inputs, outputs, self.wallet, horodatage,utxo_set=self.utxo_set)
@@ -171,6 +171,7 @@ class Utilisateur:
         for j in range(nbDepenses):
             self.entrer_output(transaction)
 
+        
 
     def menu(self):
 
