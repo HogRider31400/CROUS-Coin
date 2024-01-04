@@ -17,7 +17,7 @@ Constructeurs :
     Soit il prend un fichier texte à parse dans le format du bloc
 """
 
-import json
+import json 
 import hashlib
 import time
 from Transaction import Transaction
@@ -80,6 +80,10 @@ class Bloc:
     def get_transactions(self):
         return self.transactions
     
+    @staticmethod
+    def get_size_target():
+        return SIZE_TARGET
+    
     #-----------------------------------------------------------#
     #------------------------- Setters -------------------------#
     #-----------------------------------------------------------#
@@ -116,13 +120,6 @@ class Bloc:
     def is_mined(self):
         hashed = self.get_block_hash()
         return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
-    
-    @staticmethod
-    def is_mined_from_text(texte):
-        h=hashlib.sha256()
-        h.update(texte.to_bytes(SIZE, "big"))
-        hashed = h.hexdigest()
-        return str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
     
     """
         il faut rajouter la vérification du bloc précédent.

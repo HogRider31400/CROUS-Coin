@@ -8,6 +8,7 @@
 """
 import Bloc
 import json
+import hashlib
 
 COUT = 10
 
@@ -34,29 +35,31 @@ class Minage:
 
     #si on décide de faire du multi-threading c'est ici
     def miner(self):
-        nonce=0
+        magic_nb=0
         founded=False
         self.settings()
 
         #A partir de maintenant on ne touche plus qu'au texte
         #pour trouver le nombre magique
         while not founded:
-            nonce+=1
-            founded = self.test_number(nonce)
+            magic_nb+=1
+            founded = self.test_number(magic_nb)
         
         #On repasse sur l'instance du bloc
-        self.fill_bloc(nonce)
+        self.fill_bloc(magic_nb)
         return self.bloc.is_valid()
     
     def fill_bloc(self, number):
         self.bloc.set_pow_number(number)
-
-
-
-
+        
     def test_number(self, number):
+        h=hashlib.sha256()
         texte = json.loads(self.bloc_text)
         texte["pow_number"]=number
-        return self.bloc.is_mined_from_text(texte)
+        h.update(texte.encode())
+        hashed = h.hexdigest()
+        target = self.bloc.get_size_target()
+        return str(hashed)[0:target]=="0"*target
+        
     
     
