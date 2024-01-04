@@ -82,6 +82,9 @@ class Bloc:
     def get_transactions(self):
         return self.transactions
     
+    def get_coinbase_transaction(self):
+        return self.coinbase_transaction
+    
     @staticmethod
     def get_size_target():
         return SIZE_TARGET

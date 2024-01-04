@@ -8,6 +8,7 @@ from Signature import Signature
 from Point import Point
 from CourbeElliptique import CourbeElliptique
 from utils import courbe
+from Utilisateur import Utilisateur
 
 example_block = """
         {
@@ -49,6 +50,7 @@ class testBloc(unittest.TestCase):
         self.bloc = Bloc.from_text(example_block)
         self.bloc2 = Bloc.from_text(example_block2)
         self.paiementAB = Transaction.Transaction(tabI,tabO, "Alice",3456789.232323)
+        self.utilisateur = Utilisateur(1)
         
 
     def testParseBlock(self):
@@ -85,6 +87,14 @@ class testBloc(unittest.TestCase):
         self.assertFalse(self.bloc2.is_valid())
         self.bloc2.set_pow_number(26)
         self.assertTrue(self.bloc2.is_valid())"""
+
+    def testSetCoinbaseTransaction(self):
+        self.assertTrue(self.bloc2.get_coinbase_transaction()==None)
+        self.bloc2.set_coinbase_transaction(10, self.utilisateur)
+        ct1 = self.bloc2.get_coinbase_transaction()
+        self.assertTrue(ct1!=None)
+        self.bloc2.set_coinbase_transaction(4, self.utilisateur)
+        self.assertTrue(ct1!=self.bloc2.get_coinbase_transaction())
 
 
 
