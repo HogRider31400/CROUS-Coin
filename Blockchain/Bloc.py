@@ -26,7 +26,7 @@ from UTXOSet import UTXOSet
 import os
 
 SIZE = 32
-SIZE_TARGET = 3
+SIZE_TARGET = 5
 NB_MAX_TRANSACTIONS = 5
 INITIAL_REWARD = 20
 WAVE = 100
@@ -120,7 +120,7 @@ class Bloc:
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
     def set_coinbase_transaction(self, value, mineur):
-        print("Je passe dans set_coinbasetx")
+        #print("Je passe dans set_coinbasetx")
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
@@ -128,8 +128,8 @@ class Bloc:
         montant = self.reward + self.get_leftovers()
         msg = self.coinbase_transaction.hasher_msg(self.coinbase_transaction.creer_msg(self.coinbase_transaction.get_horodatage(), montant, mineur.get_id()))
         output = self.coinbase_transaction.creer_une_output_dico(mineur.get_id(), montant , mineur.private_key.signer(msg), mineur.private_key.point)
-        print("SALUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUT")
-        print(output)
+        #print("SALUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUT")
+        #print(output)
         self.coinbase_transaction.ajouter_outputs([output])
 
 
@@ -254,8 +254,6 @@ class Bloc:
                     "inputs" : inputs,
                     "outputs" : outputs
                 }
-
-        print(self.coinbase_transaction)
         coinbase_transaction = get_tx_data(self.coinbase_transaction)        
 
         tx_list_data = []
@@ -274,8 +272,8 @@ class Bloc:
             "pow_number" : self.pow_number
         }
 
-        print("LAAAAAAAAAA")
-        print(bloc_data)
+        #print("LAAAAAAAAAA")
+        #print(bloc_data)
         return json.dumps(bloc_data)
     
     def save(self):

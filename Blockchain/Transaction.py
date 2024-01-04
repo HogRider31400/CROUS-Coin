@@ -185,10 +185,10 @@ class Transaction:
     def verifier_sig_inputs(self):
         valide = True
         for bill in self.inputs:
-            print(bill)
+            #print(bill)
             P = bill["cleAcheteur"]
             msg = self.creer_msg(self.horodatage,bill["montant"],self.adresseAcheteur)
-            print(bill["sigAcheteur"].verifier(self.hasher_msg(msg),G,N,P))
+            #print(bill["sigAcheteur"].verifier(self.hasher_msg(msg),G,N,P))
             valide = valide and bill["sigAcheteur"].verifier(self.hasher_msg(msg),G,N,P)
         return valide
 

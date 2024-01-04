@@ -78,8 +78,8 @@ class UTXOSet:
         with open(self.BLOC_FOLDER+next_block_hash) as f:
             next_block_content = f.read()
         next_block_data = json.loads(next_block_content)
-        print("MIIIIISE A JOUR")
-        print(next_block_data)
+        #print("MIIIIISE A JOUR")
+        #print(next_block_data)
         self.current_block_hash = next_block_hash
 
         for transaction in next_block_data["transactions"]:
@@ -96,11 +96,13 @@ class UTXOSet:
 
         return True
 
-    def update_all(self):
+    def update_all(self,reset=False):
+        if reset:
+            self.load_set("")
         cur = True
         while cur == True:
             cur = self.update_next_block()
-            print("Cur block is now ",self.current_block_hash)
+            #print("Cur block is now ",self.current_block_hash)
             self.save()
         
         if cur == 3:
@@ -116,9 +118,9 @@ class UTXOSet:
         inputs = transaction["inputs"]
 
         for cur_input in inputs:
-            print("cur input est")
-            print(cur_input)
-            print(copie_arbre.keys())
+            #print("cur input est")
+            #print(cur_input)
+            #print(copie_arbre.keys())
             if to_str(cur_input["sigAcheteur"]) in copie_arbre:
                 #TODO : mettre à jour le registre
                 del copie_arbre[to_str(cur_input["sigAcheteur"])]
@@ -184,7 +186,7 @@ class UTXOSet:
         return True
 
     def get_user_utxos(self,user):
-        print(user,self.registre["user"])
+        #print(user,self.registre["user"])
         if user in self.registre["user"]:
             return self.registre["user"][user]
         return []

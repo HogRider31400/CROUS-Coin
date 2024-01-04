@@ -20,6 +20,7 @@ class Minage:
         self.bloc_text = bloc.get_block_text()
         self.id_user=id_user
         self.set_tested=set_tested
+        self.is_obsolete = False
 
     def set_id_bloc(self, new_bloc, new_set=set()):
         self.bloc=new_bloc
@@ -51,13 +52,14 @@ class Minage:
 
         #A partir de maintenant on ne touche plus qu'au texte
         #pour trouver le nombre magique
-        while not founded:
+        while not founded and not self.is_obsolete:
             magic_nb+=1
             founded = self.test_number(magic_nb)
         
-        #On repasse sur l'instance du bloc
-        self.fill_bloc(magic_nb)
-        self.bloc.set_timestamp()
+        if not self.is_obsolete:
+            #On repasse sur l'instance du bloc
+            self.fill_bloc(magic_nb)
+            self.bloc.set_timestamp()
     
     def fill_bloc(self, number):
         self.bloc.set_pow_number(number)
@@ -69,7 +71,7 @@ class Minage:
         h.update(json.dumps(texte).encode())
         hashed = h.hexdigest()
         target = self.bloc.get_size_target()
-        print(str(hashed))
+        #print(str(hashed))
         return str(hashed)[0:target] == "0"*target
         
     

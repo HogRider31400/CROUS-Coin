@@ -21,13 +21,14 @@ class Utilisateur:
     NBMAXINPUTS = 1000
     NBMAXOUTPUTS = 1000
 
-    def __init__(self,private_key):
+    def __init__(self,private_key,menu=True):
         self.private_key = ClePrivee(private_key)
         self.wallet = hash_sha256(','.join([str(cur) for cur in self.private_key.point.get_coords()]))
         print(self.wallet)
         self.DOSSIER = "./Users/" + self.wallet + "/"
         self.init_blockchain()
-        self.menu()
+        if menu:
+            self.menu()
 
     def init_blockchain(self):
         
@@ -61,7 +62,7 @@ class Utilisateur:
         cur_blocs = set(os.listdir(self.DOSSIER+"/blocs/"))
 
         user_list = os.listdir("./Users/")
-        print(user_list)
+        #print(user_list)
         cur_block_user = self.utxo_set.current_block_hash
 
         to_check = []
@@ -70,10 +71,10 @@ class Utilisateur:
             if user == "transactions_en_cours" or user == self.wallet:
                 continue
             user_blocs = os.listdir("./Users/"+user+"/blocs/")
-            print(user,user_blocs)
+            #print(user,user_blocs)
             blocs_pas_dans = []
             a_info_en_plus = False
-            contient_cur_block = (cur_block_user == None)
+            contient_cur_block = True #(cur_block_user == None)
             corresp_graphe = {}
 
             for cur_bloc in user_blocs:
@@ -87,8 +88,8 @@ class Utilisateur:
                     corresp_graphe[prev_hash] = []
                 corresp_graphe[prev_hash].append(cur_bloc)
 
-                if cur_bloc == cur_block_user:
-                    contient_cur_block = True
+                #if cur_bloc == cur_block_user:
+                #    contient_cur_block = True
 
                 if not cur_bloc in cur_blocs:
                     a_info_en_plus = True
@@ -98,17 +99,16 @@ class Utilisateur:
                 #On check que la blockchain a une évolution de son utxo_set valide
                 #TODO : optimiser, mais pas le courage là.
                 #Piste d'optimisation : partir de l'utxoset que l'utilsateur a et vérifier à partir de là
-                print("SALUUUUUUUUUUUUUUUUUT")
-                print(user)
+                #print("SALUUUUUUUUUUUUUUUUUT")
+                #print(user)
                 is_valid = UTXOSet("",False,self.DOSSIER+"temp/","./Users/"+user+"/blocs/").update_all()
-                print(is_valid)
                 if is_valid:
                     to_check.append((get_chain_length(corresp_graphe),nb_transac_dernier_bloc(user,blocs_pas_dans),blocs_pas_dans))
-        print("SALUUUUUUUUUUUUUUUT")
+        #print("SALUUUUUUUUUUUUUUUT")
         #Soit elle est à jour soit elle est cassée
         if len(to_check) == 0:
             return
-        print(to_check)
+        #print(to_check)
         #ici on a que des chaines valides ce qui permet une certaine épuration
         to_check.sort(key=lambda x: x[0])
         max_l = to_check[-1][0]
@@ -117,16 +117,22 @@ class Utilisateur:
 
         #On retrie mais cette fois en fonction de la 2eme variable (nb de transac sur le dernier)
         to_check.sort(key=lambda x: x[1])
-        
-        #On récupère donc le dernier élément
-        new_elems = to_check[-1][2]
+
+        #On récupère que les bons
+        max_l = to_check[-1][1]
+
+        #Et on trie par horodatage et prend le max d'horodatage
+        to_check.sort(key=lambda x: max(x[2],key = lambda y:y[1]["timestamp"]))
+
+        #On récupère donc le premier élément
+        new_elems = to_check[0][2]
 
         for elem in new_elems:
             with open(self.DOSSIER+"blocs/"+elem[0],"w") as f:
                 block_content = json.dumps(elem[1])
                 f.write(block_content)
         
-        self.utxo_set.update_all()
+        self.utxo_set.update_all(reset=True)
         
     
 
@@ -217,7 +223,32 @@ class Utilisateur:
         with open(CHEMINACCESTX,"w") as f:
             f.write(json.dumps(fichier_content))
 
+    def miner(self):
+        try:
+            with open(CHEMINACCESTX) as f:
+                tx_attente = json.loads(f.read())
+        except:
+            tx_attente = []
+                
+        nouveau_bloc = {
+            "previous_block_hash" : self.utxo_set.current_block_hash,
+            "timestamp" : None,               
+            "coinbase_transaction" : None,
+            "transactions" : tx_attente,
+            "pow_number" : None
+        }
 
+        bo = Bloc.from_text(json.dumps(nouveau_bloc),self.DOSSIER+"blocs/",self.utxo_set)
+
+        self.mineur = Minage(bo,self.wallet,self)
+
+        self.mineur.miner()
+        if not self.mineur.is_obsolete:
+            bo.save()
+            with open(CHEMINACCESTX,"w") as f:
+                pass
+            self.utxo_set.update_next_block()
+            self.utxo_set.save()
 
     def menu(self):
 
@@ -247,37 +278,13 @@ class Utilisateur:
             if choix==1:
                 self.menu_transaction()
             elif choix==2:
-                try:
-                    with open(CHEMINACCESTX) as f:
-                        tx_attente = json.loads(f.read())
-                    with open(CHEMINACCESTX,"w") as f:
-                        pass
-                except:
-                    tx_attente = []
-                
-                nouveau_bloc = {
-                    "previous_block_hash" : self.utxo_set.current_block_hash,
-                    "timestamp" : None,               
-                    "coinbase_transaction" : None,
-                    "transactions" : tx_attente,
-                    "pow_number" : None
-                }
-
-                bo = Bloc.from_text(json.dumps(nouveau_bloc),self.DOSSIER+"blocs/",self.utxo_set)
-
-                mineur = Minage(bo,self.wallet,self)
-
-                mineur.miner()
-
-                bo.save()
-                self.utxo_set.update_next_block()
-                self.utxo_set.save()
+                self.miner()
 
             elif choix==4: return
             elif choix == 0:
                 t = self.utxo_set.get_user_utxos(self.wallet)
                 s = 0
-                print(t)
+                #print(t)
                 for elem in t:
                     s += elem["montant"]
                 print("Votre solde est ",s)
@@ -286,4 +293,5 @@ class Utilisateur:
             else:
                 print("Jsp pas implémenté")
 
-a = Utilisateur(3)
+if __name__ == "__main__":
+    a = Utilisateur(2)
