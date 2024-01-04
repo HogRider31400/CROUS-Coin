@@ -43,7 +43,8 @@ class Bloc:
         self.timestamp = timestamp
         self.pow_number = pow_number
         self.coinbase_transaction = coinbase_transaction
-        counter+=1
+        self.counter+=1
+        self.position = self.counter
         self.reward = self._set_reward()
 
     @classmethod
@@ -64,6 +65,11 @@ class Bloc:
 
 
         return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)
+
+    def __eq__(self, other):
+        if isinstance(other, Bloc):
+            return other.position == self.position
+        
 
     #-----------------------------------------------------------#
     #------------------------- Getters -------------------------#
@@ -113,11 +119,7 @@ class Bloc:
 
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
-<<<<<<< HEAD
-    def set_coinbase_transaction(self, mineur):
-=======
     def set_coinbase_transaction(self, value, mineur):
->>>>>>> 11c79dd6f27ed765b2d1ab610cdd8724bb4a428d
         print("Je passe dans set_coinbasetx")
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
@@ -140,7 +142,7 @@ class Bloc:
             self.timestamp = time.time()
 
     def _set_reward(self):
-        return INITIAL_REWARD * (1/2) ^ (self.counter % WAVE)
+        return INITIAL_REWARD * (1/2) ** (self.counter % WAVE)
 
     #-----------------------------------------------------------#
     #-------------------------- State --------------------------#
@@ -222,6 +224,9 @@ class Bloc:
     #------------------------- Saving --------------------------#
     #-----------------------------------------------------------#
     
+    def fichier_definitif(self):
+        os.mkdir(self.BLOC_FOLDER+self.get_block_hash())
+        self.save()
 
     def get_block_text(self):
         
@@ -274,8 +279,11 @@ class Bloc:
         return json.dumps(bloc_data)
     
     def save(self):
-
-        with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
-            f.write(self.get_block_text())
+        if self.is_finished():
+            with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
+                f.write(self.get_block_text())
+        else:
+            with open(self.BLOC_FOLDER+"transactions_en_cours","w") as f:
+                f.write(self.get_block_text())
 
     
