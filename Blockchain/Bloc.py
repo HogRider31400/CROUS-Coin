@@ -16,12 +16,12 @@ Constructeurs :
     Soit un qui prend le prev hash, les transactions (déjà parsés) et un nombre
     Soit il prend un fichier texte à parse dans le format du bloc
 """
-
+import copy
 import json 
 import hashlib
 import time
 from Transaction import Transaction
-from Utilisateur import Utilisateur
+
 from UTXOSet import UTXOSet
 import os
 
@@ -50,7 +50,10 @@ class Bloc:
         transactions = []
         for cur_trans in transactions_data:
             transactions.append(Transaction.from_text(cur_trans))
-        coinbase_transaction = bloc_data["coinbase_transaction"]
+        if bloc_data["coinbase_transaction"] != None:
+            coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
+        else:
+            coinbase_transaction = None
         pow_number = bloc_data["pow_number"]
 
 
@@ -61,10 +64,10 @@ class Bloc:
     #-----------------------------------------------------------#
         
     def get_block_hash(self):
-        h=hashlib.sha256()
+        
         if self.pow_number==None:
             return -1
-        h.update(self.get_block_text().encode())
+        h = hashlib.sha512(self.get_block_text().encode())
         return h.hexdigest()
     
     def get_pow_number(self):
@@ -99,13 +102,16 @@ class Bloc:
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
     def set_coinbase_transaction(self, value, mineur):
+        print("Je passe dans set_coinbasetx")
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
         self.coinbase_transaction = Transaction([],[],mineur.get_id())
         montant = value+self.get_leftovers()
         msg = self.coinbase_transaction.hasher_msg(self.coinbase_transaction.creer_msg(self.coinbase_transaction.get_horodatage(), montant, mineur.get_id()))
-        output = self.coinbase_transaction.creer_une_output_dico(mineur, montant , mineur.private_key.signer(msg), mineur.private_key.point)
+        output = self.coinbase_transaction.creer_une_output_dico(mineur.get_id(), montant , mineur.private_key.signer(msg), mineur.private_key.point)
+        print("SALUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUT")
+        print(output)
         self.coinbase_transaction.ajouter_outputs([output])
 
 
@@ -201,7 +207,7 @@ class Bloc:
             if tx == None:
                 return None
             inputs = []
-            for cur_input in tx.get_inputs():
+            for cur_input in copy.deepcopy(tx.get_inputs()):
                 new_input = cur_input 
                 new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
                 new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
@@ -209,7 +215,7 @@ class Bloc:
 
             outputs = []
 
-            for cur_output in tx.get_outputs():
+            for cur_output in copy.deepcopy(tx.get_outputs()):
                 new_output = cur_output
                 new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
                 new_output["sigVendeur"] = cur_output["sigVendeur"].get_sig()
@@ -221,7 +227,7 @@ class Bloc:
                     "outputs" : outputs
                 }
 
-
+        print(self.coinbase_transaction)
         coinbase_transaction = get_tx_data(self.coinbase_transaction)        
 
         tx_list_data = []
@@ -232,7 +238,7 @@ class Bloc:
             )
 
 
-        block_data = {
+        bloc_data = {
             "previous_block_hash" : self.previous_block_hash,
             "timestamp" : self.timestamp,
             "coinbase_transaction" : coinbase_transaction,
@@ -240,7 +246,9 @@ class Bloc:
             "pow_number" : self.pow_number
         }
 
-        return json.dumps(block_data)
+        print("LAAAAAAAAAA")
+        print(bloc_data)
+        return json.dumps(bloc_data)
     
     def save(self):
 

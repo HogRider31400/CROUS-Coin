@@ -9,6 +9,7 @@ from UTXOSet import UTXOSet
 from Signature import Signature
 from Point import Point
 from CourbeElliptique import CourbeElliptique
+import copy
 
 N = utils.order
 G = Point(utils.generator_x,utils.generator_y,CourbeElliptique(*utils.courbe))
@@ -250,13 +251,13 @@ class Transaction:
     def to_text(self):
         if self == None:
             return None
-        for cur_input in self.inputs:
+        for cur_input in copy.deepcopy(self.inputs):
             new_input = cur_input 
             new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
             new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
             self.inputs.ajouter_inputs([new_input])
 
-        for cur_output in self.outputs:
+        for cur_output in copy.deepcopy(self.outputs):
             new_output = cur_output
             new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
             new_output["sigVendeur"] = cur_output["sigVendeur"].get_sig()

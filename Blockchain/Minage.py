@@ -32,9 +32,16 @@ class Minage:
         self.bloc_text = self.bloc.get_block_text()
 
     def setup(self):
-        self.bloc.set_coinbase_transaction(COUT, self.id_user)
-        self.bloc.maj_transactions()
+        self.bloc.set_coinbase_transaction(COUT, self)
+       #print("COINBASE TRANSACTION AVANT MAJ BLOC TEXT")
+        #print(self.bloc.coinbase_transaction)
+        #self.bloc.maj_transactions()
         self.maj_bloc_text()
+        #print("COINBASE TRANSACTION APRES MAJ BLOC TEXT")
+        #print(self.bloc.coinbase_transaction)
+
+    def get_id(self):
+        return self.id_user
 
     #si on décide de faire du multi-threading c'est ici
     def miner(self):
@@ -56,13 +63,14 @@ class Minage:
         self.bloc.set_pow_number(number)
 
     def test_number(self, number):
-        h=hashlib.sha256()
+        h = hashlib.sha256()
         texte = json.loads(self.bloc_text)
-        texte["pow_number"]=number
-        h.update(texte.encode())
+        texte["pow_number"] = number
+        h.update(json.dumps(texte).encode())
         hashed = h.hexdigest()
         target = self.bloc.get_size_target()
-        return str(hashed)[0:target]=="0"*target
+        print(str(hashed))
+        return str(hashed)[0:target] == "0"*target
         
     
     

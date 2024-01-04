@@ -7,13 +7,10 @@ from ClePrivee import ClePrivee
 from UTXOSet import UTXOSet
 from Transaction import Transaction
 from Signature import Signature
-<<<<<<< HEAD
 from Minage import Minage
-from utils_user import dossier_existe,hash_sha256,get_chain_length
-=======
 from utils_user import dossier_existe,hash_sha256,get_chain_length,CHEMINACCESTX
->>>>>>> 4eedc9b840ec0d7413d4930b76a14a8886af36ff
 import json
+from Bloc import Bloc
 
 class Utilisateur:
 
@@ -181,9 +178,15 @@ class Utilisateur:
         transTexte = transaction.to_text()
 
         ##On sauvegarde transTexte dans un fichier commun
-        fichier = open(CHEMINACCESTX, "a")
-        fichier.write(transTexte)
-        fichier.close()
+        try:
+            with open(CHEMINACCESTX) as f:
+                fichier_content = json.loads(f.read())
+        except:
+            fichier_content = []
+        fichier_content.append(json.loads(transaction.to_text()))
+        
+        with open(CHEMINACCESTX,"w") as f:
+            f.write(json.dumps(fichier_content))
 
 
 
@@ -215,7 +218,26 @@ class Utilisateur:
             if choix==1:
                 self.menu_transaction()
             elif choix==2:
-                mineur = Minage()
+                try:
+                    with open(CHEMINACCESTX) as f:
+                        tx_attente = json.loads(f.read())
+                except:
+                    tx_attente = []
+                
+                nouveau_bloc = {
+                    "previous_block_hash" : self.utxo_set.current_block_hash,
+                    "timestamp" : None,               
+                    "coinbase_transaction" : None,
+                    "transactions" : tx_attente,
+                    "pow_number" : None
+                }
+
+                bo = Bloc.from_text(json.dumps(nouveau_bloc),self.DOSSIER+"blocs/",self.utxo_set)
+
+                mineur = Minage(bo,self.wallet,self)
+
+                mineur.miner()
+
             elif choix==4: return
             elif choix == 0:
                 print("Votre solde est :",sum(self.utxo_set.get_block_utxos(self.wallet)))
