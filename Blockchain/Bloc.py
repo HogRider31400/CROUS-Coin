@@ -50,7 +50,7 @@ class Bloc:
         transactions = []
         for cur_trans in transactions_data:
             transactions.append(Transaction.from_text(cur_trans))
-        coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
+        coinbase_transaction = bloc_data["coinbase_transaction"]
         pow_number = bloc_data["pow_number"]
 
 
@@ -134,6 +134,10 @@ class Bloc:
     def is_valid(self):
         self.transactions_valid()
         if not self.is_mined():
+            print("Non valide: bloc pas miné.")
+            return False
+        if not self.previous_bloc_is_founded():
+            print("Non valide: precedent bloc pas trouvé")
             return False
         return True
 
