@@ -29,10 +29,8 @@ NB_MAX_TRANSACTIONS = 5
 
 class Bloc:
 
-    #static
-    UTXO = UTXOSet("")
-
-    def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs'):
+    def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs',utxo_set=""):
+        self.utxo_set = utxo_set 
         self.BLOC_FOLDER = BLOC_FOLDER
         self.previous_block_hash=previous_block_hash
         self.transactions=transactions
@@ -162,11 +160,11 @@ class Bloc:
     
     def save(self):
 
-        with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
+        with open(self.UTXO_FOLDER+self.get_block_hash(),"w") as f:
             f.write(self.get_block_text())
 
     @classmethod
-    def from_text(cls,text):
+    def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
         bloc_data = json.loads(text)
 
         previous_block_hash = bloc_data["previous_block_hash"]
@@ -175,8 +173,8 @@ class Bloc:
         transactions = []
         for cur_trans in transactions_data:
             transactions.append(Transaction.from_text(cur_trans))
-        coinbase_transaction = bloc_data["coinbase_transaction"]
+        coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
         pow_number = bloc_data["pow_number"]
 
 
-        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number)
+        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)

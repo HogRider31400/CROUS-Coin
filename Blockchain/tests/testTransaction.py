@@ -41,18 +41,18 @@ class testTransaction(unittest.TestCase):
         self.assertEqual("Transaction (3456789.232323-I:{'montant': 50, 'sigAcheteur': Signature (56, 47), 'cleAcheteur': (1, 2)}-O:{'vendeur': 'Bob', 'montant': 30, 'sigVendeur': Signature (34, 78), 'cleVendeur': (3, 4)})",newPaiement.__repr__())
 
     def testAjouterSupprimerInputs(self):
-        inputEncap = [self.paiementAB.creerUneInputDico(50, (3,4), (45,46))]
-        self.paiementAB.ajouterInputs(inputEncap)
-        self.assertEqual(2, len(self.paiementAB.getInputs()))
-        self.paiementAB.enleverInputs(inputEncap)
-        self.assertEqual(1, len(self.paiementAB.getInputs()))
+        inputEncap = [self.paiementAB.creer_une_input_dico(50, (3,4), (45,46))]
+        self.paiementAB.ajouter_inputs(inputEncap)
+        self.assertEqual(2, len(self.paiementAB.get_inputs()))
+        self.paiementAB.enlever_inputs(inputEncap)
+        self.assertEqual(1, len(self.paiementAB.get_inputs()))
     
     def testAjouterSupprimerOutputs(self):
-        outputEncap = [self.paiementAB.creerUneOutputDico("Bob",50, (3,4), (45,46))]
-        self.paiementAB.ajouterOutputs(outputEncap)
-        self.assertEqual(2, len(self.paiementAB.getOutputs()))
-        self.paiementAB.enleverOutputs(outputEncap)
-        self.assertEqual(1, len(self.paiementAB.getOutputs()))
+        outputEncap = [self.paiementAB.creer_une_output_dico("Bob", 50, (3,4), (45,46))]
+        self.paiementAB.ajouter_outputs(outputEncap)
+        self.assertEqual(2, len(self.paiementAB.get_outputs()))
+        self.paiementAB.enlever_outputs(outputEncap)
+        self.assertEqual(1, len(self.paiementAB.get_outputs()))
 
     def testVerifier(self):
         self.paiementAB = Transaction(self.tabI,self.tabO, "Alice",3456789.232323)

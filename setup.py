@@ -15,4 +15,4 @@ def setup():
     launch_cmd("python -m ensurepip --default-pip")
     launch_cmd("python -m pip install --upgrade pip")
     launch_cmd("python -m pip install pycryptodome")
-    launch_cmd("python -m pip install pythonp2p")
+    launch_cmd("python -m pip install p2pd")
