@@ -21,6 +21,7 @@ import json
 import hashlib
 import time
 from Transaction import Transaction
+from Utilisateur import Utilisateur
 from UTXOSet import UTXOSet
 
 SIZE = 32
@@ -68,7 +69,7 @@ class Bloc:
     def get_pow_number(self):
         return self.pow_number
     
-    def get_letfovers(self):
+    def get_leftovers(self):
         somme=0
         for transaction in self.transactions:
             somme+=transaction.differenceIO()
@@ -100,7 +101,12 @@ class Bloc:
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
-        self.coinbase_transaction = Transaction([], [], mineur.get_id())
+        self.coinbase_transaction = Transaction([],[],mineur.get_id())
+        montant = value+self.get_leftovers()
+        msg = self.coinbase_transaction.hasher_msg(self.coinbase_transaction.creer_msg(self.coinbase_transaction.get_horodatage(), montant, mineur.get_id()))
+        output = self.coinbase_transaction.creer_une_output_dico(mineur, montant , mineur.private_key.signer(msg), mineur.private_key.point)
+        self.coinbase_transaction.ajouter_outputs([output])
+
 
     #methode qui permet de sceller le bloc
     def set_timestamp(self):
