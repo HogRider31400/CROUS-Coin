@@ -17,6 +17,8 @@ Méthodes :
 Constructeurs :
     - Idéalement uniquement à partir de texte, la chaine vide signifiant un utxo set vide. L'UTXO set tient un registre persistent et n'a donc pas besoin d'être créé à partir de données existantes car sinon il existe déjà (paradoxe de l'UTx07). Il aura aussi une option pour se mettre à jour lors de la construction de l'objet ou pas
 """
+def to_str(e):
+    return ','.join([str(x) for x in e])
 
 import json
 import os
@@ -24,6 +26,7 @@ import copy
 import sys
 sys.path.append("./blocs")
 sys.path.append("..")
+
 
 class UTXOSet:
 
@@ -49,6 +52,7 @@ class UTXOSet:
                 set_data = json.loads(texte)
             else:
                 set_data = texte #déjà du json
+            
             self.arbre = set_data["arbre"]
             self.registre = set_data["registre"]
             self.current_block_hash = set_data["current_block_hash"]
@@ -69,12 +73,13 @@ class UTXOSet:
     def update_next_block(self):
         next_block_hash = self.get_next_block()
         if not (next_block_hash):
-            return False
+            return 3
 
         with open(self.BLOC_FOLDER+next_block_hash) as f:
             next_block_content = f.read()
         next_block_data = json.loads(next_block_content)
-
+        print("MIIIIISE A JOUR")
+        print(next_block_data)
         self.current_block_hash = next_block_hash
 
         for transaction in next_block_data["transactions"]:
@@ -83,16 +88,27 @@ class UTXOSet:
                 print("Block", next_block_hash ,"is not OK, current block is still",self.current_block_hash)
                 self.rollback()
                 return False
-
+        success = self.try_update_tree(next_block_data["coinbase_transaction"])
+        if not success:
+            print("Block", next_block_hash ,"is not OK, current block is still",self.current_block_hash)
+            self.rollback()
+            return False
 
         return True
 
     def update_all(self):
-        while self.update_next_block():
+        cur = True
+        while cur == True:
+            cur = self.update_next_block()
             print("Cur block is now ",self.current_block_hash)
             self.save()
+        
+        if cur == 3:
+            return True
+        return False
 
     def update_tree(self,transaction):
+
 
         copie_arbre = copy.deepcopy(self.arbre)
 
@@ -100,16 +116,19 @@ class UTXOSet:
         inputs = transaction["inputs"]
 
         for cur_input in inputs:
-            if cur_input["sigAcheteur"] in copie_arbre:
+            print("cur input est")
+            print(cur_input)
+            print(copie_arbre.keys())
+            if to_str(cur_input["sigAcheteur"]) in copie_arbre:
                 #TODO : mettre à jour le registre
-                del copie_arbre[cur_input["sigAcheteur"]]
+                del copie_arbre[to_str(cur_input["sigAcheteur"])]
             else:
                 return False # ce n'est pas un utxo et n'a rien à faire en input
 
         for cur_output in outputs:
-            if cur_output["sigVendeur"] not in copie_arbre:
+            if to_str(cur_output["sigVendeur"]) not in copie_arbre:
                 #TODO : mettre à jour le registre
-                copie_arbre[cur_output["sigVendeur"]] = cur_output
+                copie_arbre[to_str(cur_output["sigVendeur"])] = cur_output
             else:
                 return False # duplication de signature en output, il y a eu une erreur de transmission
                              #ou le vendeur essaye d'enfler l'acheteur
@@ -125,30 +144,47 @@ class UTXOSet:
         acheteur = transaction["acheteur"]
         # Partie 1 : on enlève les éléments dans l'input
         for cur_input in transaction["inputs"]:
-            del self.registre["sig"][cur_input["sigVendeur"]]
+            del self.registre["sig"][to_str(cur_input["sigAcheteur"])]
 
-            self.registre["user"][acheteur].remove(cur_input)
+            index_user_remove = -1
+            for i in range(len(self.registre["user"][acheteur])):
+                elem = self.registre["user"][acheteur][i]
+                if to_str(elem["sigVendeur"]) == to_str(cur_input["sigAcheteur"]):
+                    index_user_remove = i
+                    break
+
+            self.registre["user"][acheteur].pop(index_user_remove)
             if(len(self.registre["user"][acheteur]) == 0):
                 del self.registre["user"][acheteur]
-            self.registre["block_hash"][self.current_block_hash].remove(cur_input)
-        
+            
+            if self.current_block_hash in self.registre["block_hash"]:
+                index_block_remove = -1
+                for i in range(len(self.registre["block_hash"][self.current_block_hash])):
+                    elem = self.registre["block_hash"][self.current_block_hash][i]
+                    if to_str(elem["sigVendeur"]) == to_str(cur_input["sigAcheteur"]):
+                        index_block_remove = i
+                        break
+
+                self.registre["block_hash"][self.current_block_hash].pop(index_block_remove)
+            
         #Partie 2 : on ajoute les nouveaux
         for cur_output in transaction["outputs"]:
-            self.registre["sig"][cur_input["sigVendeur"]] = cur_output
-            if not cur_input["vendeur"] in self.registre["user"]:
-                self.registre["user"][cur_input["vendeur"]] = []
-            self.registre["user"][cur_input["vendeur"]].append(cur_output)
+            self.registre["sig"][to_str(cur_output["sigVendeur"])] = cur_output
+            if not cur_output["vendeur"] in self.registre["user"]:
+                self.registre["user"][cur_output["vendeur"]] = []
+            self.registre["user"][cur_output["vendeur"]].append(cur_output)
             if not self.current_block_hash in self.registre["block_hash"]:
                 self.registre["block_hash"][self.current_block_hash] = []
             self.registre["block_hash"][self.current_block_hash].append(cur_output)
             #TODO : partie block_hash
 
     def is_spent(self,sig):
-        if sig in self.registre["sig"]:
+        if to_str(sig) in self.registre["sig"]:
             return False
         return True
 
     def get_user_utxos(self,user):
+        print(user,self.registre["user"])
         if user in self.registre["user"]:
             return self.registre["user"][user]
         return []

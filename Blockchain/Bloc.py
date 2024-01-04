@@ -16,20 +16,24 @@ Constructeurs :
     Soit un qui prend le prev hash, les transactions (déjà parsés) et un nombre
     Soit il prend un fichier texte à parse dans le format du bloc
 """
-
+import copy
 import json 
 import hashlib
 import time
 from Transaction import Transaction
-from Utilisateur import Utilisateur
+
 from UTXOSet import UTXOSet
 import os
 
 SIZE = 32
 SIZE_TARGET = 3
 NB_MAX_TRANSACTIONS = 5
+INITIAL_REWARD = 20
+WAVE = 100
 
 class Bloc:
+
+    counter = 0
 
     def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs',utxo_set=""):
         self.utxo_set = utxo_set 
@@ -39,6 +43,8 @@ class Bloc:
         self.timestamp = timestamp
         self.pow_number = pow_number
         self.coinbase_transaction = coinbase_transaction
+        counter+=1
+        self.reward = self._set_reward()
 
     @classmethod
     def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
@@ -50,7 +56,10 @@ class Bloc:
         transactions = []
         for cur_trans in transactions_data:
             transactions.append(Transaction.from_text(cur_trans))
-        coinbase_transaction = bloc_data["coinbase_transaction"]
+        if bloc_data["coinbase_transaction"] != None:
+            coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
+        else:
+            coinbase_transaction = None
         pow_number = bloc_data["pow_number"]
 
 
@@ -61,10 +70,10 @@ class Bloc:
     #-----------------------------------------------------------#
         
     def get_block_hash(self):
-        h=hashlib.sha256()
+        
         if self.pow_number==None:
             return -1
-        h.update(self.get_block_text().encode())
+        h = hashlib.sha512(self.get_block_text().encode())
         return h.hexdigest()
     
     def get_pow_number(self):
@@ -89,6 +98,9 @@ class Bloc:
     def get_size_target():
         return SIZE_TARGET
     
+    def get_reward(self):
+        return self.reward
+
     #-----------------------------------------------------------#
     #------------------------- Setters -------------------------#
     #-----------------------------------------------------------#
@@ -101,14 +113,17 @@ class Bloc:
 
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
-    def set_coinbase_transaction(self, value, mineur):
+    def set_coinbase_transaction(self, mineur):
+        print("Je passe dans set_coinbasetx")
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
         self.coinbase_transaction = Transaction([],[],mineur.get_id())
-        montant = value+self.get_leftovers()
+        montant = self.reward + self.get_leftovers()
         msg = self.coinbase_transaction.hasher_msg(self.coinbase_transaction.creer_msg(self.coinbase_transaction.get_horodatage(), montant, mineur.get_id()))
-        output = self.coinbase_transaction.creer_une_output_dico(mineur, montant , mineur.private_key.signer(msg), mineur.private_key.point)
+        output = self.coinbase_transaction.creer_une_output_dico(mineur.get_id(), montant , mineur.private_key.signer(msg), mineur.private_key.point)
+        print("SALUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUT")
+        print(output)
         self.coinbase_transaction.ajouter_outputs([output])
 
 
@@ -120,6 +135,9 @@ class Bloc:
         if self.is_valid():
             self.timestamp = time.time()
 
+    def _set_reward(self):
+        return INITIAL_REWARD * (1/2) ^ (self.counter % WAVE)
+
     #-----------------------------------------------------------#
     #-------------------------- State --------------------------#
     #-----------------------------------------------------------#
@@ -129,6 +147,7 @@ class Bloc:
 
     def is_mined(self):
         hashed = self.get_block_hash()
+        print(hashed)
         return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
     
     """
@@ -154,7 +173,7 @@ class Bloc:
     def previous_bloc_is_founded(self):
         if self.previous_block_hash == None:
             return True
-        for b in os.listdir('./blocs/'):
+        for b in os.listdir(self.BLOC_FOLDER):
             if b == self.previous_block_hash:
                 return True
         return False
@@ -193,8 +212,7 @@ class Bloc:
         output.append("Timestamp: " + self.timestamp + "\n")
         output.append("Proof of work: " + self.pow_number + "\n")
         return output
-    
-    
+
     
     #-----------------------------------------------------------#
     #------------------------- Saving --------------------------#
@@ -207,27 +225,28 @@ class Bloc:
             if tx == None:
                 return None
             inputs = []
-            for cur_input in tx.getInputs():
+            for cur_input in copy.deepcopy(tx.get_inputs()):
                 new_input = cur_input 
-                new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
-                new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
+                new_input["cleAcheteur"] = tuple(cur_input["cleAcheteur"].get_coords())
+                new_input["sigAcheteur"] = tuple(cur_input["sigAcheteur"].get_sig())
                 inputs.append(new_input)
 
             outputs = []
 
-            for cur_output in tx.getOutputs():
+            for cur_output in copy.deepcopy(tx.get_outputs()):
                 new_output = cur_output
-                new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
-                new_output["sigVendeur"] = cur_output["sigVendeur"].get_coords()
+                new_output["cleVendeur"] = tuple(cur_output["cleVendeur"].get_coords())
+                new_output["sigVendeur"] = tuple(cur_output["sigVendeur"].get_sig())
                 outputs.append(new_output)
             
             return {
-                    "horodatage" : tx.getHorodatage(),
+                    "horodatage" : tx.get_horodatage(),
+                    "acheteur" : tx.adresseAcheteur,
                     "inputs" : inputs,
                     "outputs" : outputs
                 }
 
-
+        print(self.coinbase_transaction)
         coinbase_transaction = get_tx_data(self.coinbase_transaction)        
 
         tx_list_data = []
@@ -238,7 +257,7 @@ class Bloc:
             )
 
 
-        block_data = {
+        bloc_data = {
             "previous_block_hash" : self.previous_block_hash,
             "timestamp" : self.timestamp,
             "coinbase_transaction" : coinbase_transaction,
@@ -246,11 +265,13 @@ class Bloc:
             "pow_number" : self.pow_number
         }
 
-        return json.dumps(block_data)
+        print("LAAAAAAAAAA")
+        print(bloc_data)
+        return json.dumps(bloc_data)
     
     def save(self):
 
-        with open(self.UTXO_FOLDER+self.get_block_hash(),"w") as f:
+        with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
             f.write(self.get_block_text())
 
     

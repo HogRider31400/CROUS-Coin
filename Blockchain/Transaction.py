@@ -1,3 +1,4 @@
+
 import json
 import time
 import hashlib
@@ -9,6 +10,7 @@ from UTXOSet import UTXOSet
 from Signature import Signature
 from Point import Point
 from CourbeElliptique import CourbeElliptique
+import copy
 
 N = utils.order
 G = Point(utils.generator_x,utils.generator_y,CourbeElliptique(*utils.courbe))
@@ -63,7 +65,7 @@ class Transaction:
 
             new_cur = cur_input
 
-            new_cur["cleAcheteur"] = Point(cur_input["cleAcheteur"][0],cur_input["cleAcheteur"][1],CourbeElliptique(*courbe))
+            new_cur["cleAcheteur"] = Point(cur_input["cleAcheteur"][0],cur_input["cleAcheteur"][1],CourbeElliptique(*utils.courbe))
             new_cur["sigAcheteur"] = Signature(cur_input["sigAcheteur"][0],cur_input["sigAcheteur"][1])
             inputs.append(new_cur)
 
@@ -74,14 +76,14 @@ class Transaction:
 
             new_cur = cur_output
 
-            new_cur["cleVendeur"] = Point(cur_input["cleVendeur"][0],cur_input["cleVendeur"][1],CourbeElliptique(*courbe))
-            new_cur["sigVendeur"] = Signature(cur_input["sigVendeur"][0],cur_input["sigVendeur"][1])
+            new_cur["cleVendeur"] = Point(cur_output["cleVendeur"][0],cur_output["cleVendeur"][1],CourbeElliptique(*utils.courbe))
+            new_cur["sigVendeur"] = Signature(cur_output["sigVendeur"][0],cur_output["sigVendeur"][1])
             outputs.append(new_cur)
 
 
         outputs = bloc_data["outputs"]
 
-        return cls(horodatage,inputs,outputs,adresse_acheteur)
+        return cls(inputs,outputs,adresse_acheteur,horodatage,utxo_set)
     
     def afficherIO(self,tabIO):
         '''Permet d'afficher un tableau d'entrées ou de sorties'''
@@ -250,22 +252,26 @@ class Transaction:
     def to_text(self):
         if self == None:
             return None
-        for cur_input in self.inputs:
+        inputs = []
+        outputs = []
+        
+        for cur_input in copy.deepcopy(self.inputs):
             new_input = cur_input 
-            new_input["cleAcheteur"] = cur_input["cleAcheteur"].get_coords()
-            new_input["sigAcheteur"] = cur_input["sigAcheteur"].get_sig()
-            self.inputs.ajouter_inputs([new_input])
+            new_input["cleAcheteur"] = tuple(cur_input["cleAcheteur"].get_coords())
+            new_input["sigAcheteur"] = tuple(cur_input["sigAcheteur"].get_sig())
+            inputs.append(new_input)
 
-        for cur_output in self.outputs:
+        for cur_output in copy.deepcopy(self.outputs):
             new_output = cur_output
-            new_output["cleVendeur"] = cur_output["cleVendeur"].get_coords()
-            new_output["sigVendeur"] = cur_output["sigVendeur"].get_sig()
-            self.outputs.ajouter_inputs([new_output])
+            new_output["cleVendeur"] = tuple(cur_output["cleVendeur"].get_coords())
+            new_output["sigVendeur"] = tuple(cur_output["sigVendeur"].get_sig())
+            outputs.append(new_output)
             
         dico_trans = {
             "horodatage" : self.horodatage,
-            "inputs" : self.inputs,
-            "outputs" : self.outputs
+            "acheteur" : self.adresseAcheteur,
+            "inputs" : inputs,
+            "outputs" : outputs
         }
 
         return json.dumps(dico_trans)

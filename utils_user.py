@@ -14,7 +14,9 @@ def hash_sha256(texte):
 def get_chain_length(graphe,cur = None):
 
     max_l = 0 #On compte pas le cur comme faisant partie de la chaine
-    for enfant in elem[cur]:
+    if not cur in graphe:
+        return 0
+    for enfant in graphe[cur]:
         max_l = max(max_l,get_chain_length(graphe,enfant))
     
     return max_l + 1 #Mais on le compte ici
