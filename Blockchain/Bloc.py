@@ -113,7 +113,11 @@ class Bloc:
 
     #transaction sans input à faire 
     #ajouter en plus le surplus de toutes les tx
+<<<<<<< HEAD
     def set_coinbase_transaction(self, mineur):
+=======
+    def set_coinbase_transaction(self, value, mineur):
+>>>>>>> 11c79dd6f27ed765b2d1ab610cdd8724bb4a428d
         print("Je passe dans set_coinbasetx")
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
