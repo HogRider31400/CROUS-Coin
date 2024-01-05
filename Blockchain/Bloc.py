@@ -66,9 +66,7 @@ class Bloc:
 
         return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)
 
-    def __eq__(self, other):
-        if isinstance(other, Bloc):
-            return other.position == self.position
+    
         
 
     #-----------------------------------------------------------#
@@ -134,7 +132,7 @@ class Bloc:
 
 
     #methode qui permet de sceller le bloc
-    def set_timestamp(self):
+    def _set_timestamp(self):
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
@@ -155,6 +153,9 @@ class Bloc:
         hashed = self.get_block_hash()
         print(hashed)
         return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
+    
+    def is_full(self):
+        return len(self.transactions)==NB_MAX_TRANSACTIONS
     
     """
         il faut rajouter la vérification du bloc précédent.
@@ -218,15 +219,15 @@ class Bloc:
         output.append("Timestamp: " + self.timestamp + "\n")
         output.append("Proof of work: " + self.pow_number + "\n")
         return output
+    
+    def __eq__(self, other):
+        if isinstance(other, Bloc):
+            return other.position == self.position
 
     
     #-----------------------------------------------------------#
     #------------------------- Saving --------------------------#
     #-----------------------------------------------------------#
-    
-    def fichier_definitif(self):
-        os.mkdir(self.BLOC_FOLDER+self.get_block_hash())
-        self.save()
 
     def get_block_text(self):
         
@@ -283,7 +284,18 @@ class Bloc:
             with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
                 f.write(self.get_block_text())
         else:
-            with open(self.BLOC_FOLDER+"transactions_en_cours","w") as f:
+            with open(self.BLOC_FOLDER+"bloc_actuel","w") as f:
                 f.write(self.get_block_text())
+
+    #fixe l'heure de validité du bloc, sauvegarde le bloc à partir de son hash, reset le bloc courant
+    def sceller(self):
+        if self.is_finished():
+            return
+        else:
+            self._set_timestamp()
+            with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
+                f.write(self.get_block_text())
+            with open(self.BLOC_FOLDER+"bloc_actuel","w") as f:
+                f.write("")
 
     

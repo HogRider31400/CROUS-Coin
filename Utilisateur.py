@@ -29,6 +29,10 @@ class Utilisateur:
         self.init_blockchain()
         self.menu()
 
+    #--------------------------------------------------------------------------------
+    # BLOCKCHAIN
+    #--------------------------------------------------------------------------------
+
     def init_blockchain(self):
         
         if not dossier_existe("./Users/"):
@@ -128,7 +132,9 @@ class Utilisateur:
         
         self.utxo_set.update_all()
         
-    
+    #--------------------------------------------------------------------------------
+    # TRANSACTIONS
+    #--------------------------------------------------------------------------------
 
     def creer_transaction(self,inputs, outputs, horodatage=None):
         return Transaction(inputs, outputs, self.wallet, horodatage,utxo_set=self.utxo_set)
