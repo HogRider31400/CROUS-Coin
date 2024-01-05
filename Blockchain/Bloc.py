@@ -75,7 +75,7 @@ class Bloc:
         
         if self.pow_number==None:
             return -1
-        h = hashlib.sha512(self.get_block_text().encode())
+        h = hashlib.sha256(self.get_block_text().encode())
         return h.hexdigest()
     
     def get_pow_number(self):
@@ -277,6 +277,7 @@ class Bloc:
     
     def save(self):
         if self.is_finished():
-            with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
+            path = self.BLOC_FOLDER+self.get_block_hash()
+            with open(path,"w") as f:
                 f.write(self.get_block_text())
     
