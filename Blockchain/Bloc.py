@@ -26,7 +26,7 @@ from UTXOSet import UTXOSet
 import os
 
 SIZE = 32
-SIZE_TARGET = 5
+SIZE_TARGET = 3
 NB_MAX_TRANSACTIONS = 5
 INITIAL_REWARD = 20
 WAVE = 100
@@ -56,9 +56,9 @@ class Bloc:
         transactions_data = bloc_data["transactions"]
         transactions = []
         for cur_trans in transactions_data:
-            transactions.append(Transaction.from_text(cur_trans))
+            transactions.append(Transaction.from_text(cur_trans,utxo_set))
         if bloc_data["coinbase_transaction"] != None:
-            coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"])
+            coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"],utxo_set)
         else:
             coinbase_transaction = None
         pow_number = bloc_data["pow_number"]
@@ -124,9 +124,10 @@ class Bloc:
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
-        self.coinbase_transaction = Transaction([],[],mineur.get_id())
+        self.coinbase_transaction = Transaction([],[],mineur.get_id(),None,self.utxo_set)
         montant = self.reward + self.get_leftovers()
         msg = self.coinbase_transaction.hasher_msg(self.coinbase_transaction.creer_msg(self.coinbase_transaction.get_horodatage(), montant, mineur.get_id()))
+        #print(self.coinbase_transaction.creer_msg(self.coinbase_transaction.get_horodatage(), montant, mineur.get_id()))
         output = self.coinbase_transaction.creer_une_output_dico(mineur.get_id(), montant , mineur.private_key.signer(msg), mineur.private_key.point)
         #print("SALUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUT")
         #print(output)
@@ -162,6 +163,7 @@ class Bloc:
     def is_valid(self):
         if not self.transactions_valid():
             print("Non valide: transactions invalides.")
+            return False 
         if not self.is_mined():
             print("Non valide: bloc pas miné.")
             return False
@@ -172,7 +174,8 @@ class Bloc:
 
     def transactions_valid(self):
         for transaction in self.transactions:
-            if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
+            #print(transaction.verifier())
+            if not transaction.verifier(): # or not self.utxo_set.try_update_tree(transaction):
                 return False
         return True
     
@@ -279,9 +282,6 @@ class Bloc:
     def save(self):
         if self.is_finished():
             with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
-                f.write(self.get_block_text())
-        else:
-            with open(self.BLOC_FOLDER+"transactions_en_cours","w") as f:
                 f.write(self.get_block_text())
 
     

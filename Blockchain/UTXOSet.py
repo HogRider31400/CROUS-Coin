@@ -30,7 +30,7 @@ sys.path.append("..")
 
 class UTXOSet:
 
-    def __init__(self,texte, update=False,UTXO_FOLDER = './blocs/',BLOC_FOLDER = './utxo/'):
+    def __init__(self,texte, update=False,BLOC_FOLDER = './blocs/',UTXO_FOLDER = './utxo/'):
         self.BLOC_FOLDER = BLOC_FOLDER
         self.UTXO_FOLDER = UTXO_FOLDER
         self.load_set(texte)
@@ -171,6 +171,9 @@ class UTXOSet:
             
         #Partie 2 : on ajoute les nouveaux
         for cur_output in transaction["outputs"]:
+
+            cur_output.update({"horodatage" : transaction["horodatage"]})
+
             self.registre["sig"][to_str(cur_output["sigVendeur"])] = cur_output
             if not cur_output["vendeur"] in self.registre["user"]:
                 self.registre["user"][cur_output["vendeur"]] = []
@@ -184,6 +187,12 @@ class UTXOSet:
         if to_str(sig) in self.registre["sig"]:
             return False
         return True
+
+    def get_sig_h(self,sig):
+        print("ON RETOURNE ",self.registre["sig"][to_str(sig)]["horodatage"])
+        if to_str(sig) in self.registre["sig"]:
+            return self.registre["sig"][to_str(sig)]["horodatage"]
+        return 0
 
     def get_user_utxos(self,user):
         #print(user,self.registre["user"])

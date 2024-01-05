@@ -55,7 +55,7 @@ class Utilisateur:
                 pass
             set_data = ""
 
-        self.utxo_set = UTXOSet(set_data, True,DOSSIER_UTXO,DOSSIER_BLOCS)
+        self.utxo_set = UTXOSet(set_data, True,DOSSIER_BLOCS,DOSSIER_UTXO)
 
     def update_blockchain(self):
 
@@ -218,10 +218,13 @@ class Utilisateur:
                 fichier_content = json.loads(f.read())
         except:
             fichier_content = []
-        fichier_content.append(json.loads(transaction.to_text()))
-        
-        with open(CHEMINACCESTX,"w") as f:
-            f.write(json.dumps(fichier_content))
+        if len(fichier_content) == 5:
+            print("Il y a déjà trop de transactions en attente, veuillez recommencer ultérieurement.")
+        else:
+            fichier_content.append(json.loads(transaction.to_text()))
+            
+            with open(CHEMINACCESTX,"w") as f:
+                f.write(json.dumps(fichier_content))
 
     def miner(self):
         try:
