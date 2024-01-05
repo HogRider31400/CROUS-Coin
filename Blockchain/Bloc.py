@@ -29,7 +29,7 @@ SIZE = 32
 SIZE_TARGET = 3
 NB_MAX_TRANSACTIONS = 5
 INITIAL_REWARD = 20
-WAVE = 100
+WAVE = 2
 
 class Bloc:
 
@@ -44,6 +44,7 @@ class Bloc:
         self.pow_number = pow_number
         self.coinbase_transaction = coinbase_transaction
         self.reward = self._set_reward()
+        print("reward : " + str(self.reward) + "/counter: " + str(self.counter))
 
     @classmethod
     def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
@@ -101,6 +102,7 @@ class Bloc:
         return SIZE_TARGET
     
     def get_reward(self):
+        print("reward : " + self.reward)
         return self.reward
 
     #-----------------------------------------------------------#
@@ -113,9 +115,7 @@ class Bloc:
             return
         self.pow_number=new_pow_number
 
-    #transaction sans input à faire 
-    #ajouter en plus le surplus de toutes les tx
-    def set_coinbase_transaction(self, value, mineur):
+    def set_coinbase_transaction(self, mineur):
         #print("Je passe dans set_coinbasetx")
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
@@ -136,11 +136,11 @@ class Bloc:
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
         if self.is_valid():
-            self.counter+=1
+            Bloc.counter+=1
             self.timestamp = time.time()
 
     def _set_reward(self):
-        return INITIAL_REWARD * (1/2) ** (self.counter+1 % WAVE)
+        return INITIAL_REWARD * (1/2) ** (self.counter+1 // WAVE)
 
     #-----------------------------------------------------------#
     #-------------------------- State --------------------------#

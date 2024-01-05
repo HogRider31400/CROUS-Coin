@@ -10,7 +10,6 @@ import Bloc
 import json
 import hashlib
 
-COUT = 10
 
 class Minage:
     def __init__(self, bloc,id_user,user, set_tested=set()):
@@ -33,7 +32,7 @@ class Minage:
         self.bloc_text = self.bloc.get_block_text()
 
     def setup(self):
-        self.bloc.set_coinbase_transaction(COUT, self)
+        self.bloc.set_coinbase_transaction(self)
        #print("COINBASE TRANSACTION AVANT MAJ BLOC TEXT")
         #print(self.bloc.coinbase_transaction)
         #self.bloc.maj_transactions()
@@ -59,10 +58,11 @@ class Minage:
         if not self.is_obsolete:
             #On repasse sur l'instance du bloc
             self.fill_bloc(magic_nb)
-            self.bloc.set_timestamp()
+            
     
     def fill_bloc(self, number):
         self.bloc.set_pow_number(number)
+        self.bloc.set_timestamp()
 
     def test_number(self, number):
         h = hashlib.sha256()
