@@ -45,6 +45,7 @@ class UTXOSet:
                 "sig" : {},
                 "block_hash" : {}
             }
+            self.hauteur = 0
             self.current_block_hash = None
             self.save()
         else:
@@ -54,6 +55,7 @@ class UTXOSet:
                 set_data = texte #déjà du json
             
             self.arbre = set_data["arbre"]
+            self.hauteur = set_data["hauteur"]
             self.registre = set_data["registre"]
             self.current_block_hash = set_data["current_block_hash"]
 
@@ -93,6 +95,8 @@ class UTXOSet:
             print("Block", next_block_hash ,"is not OK, current block is still",self.current_block_hash)
             self.rollback()
             return False
+
+        self.hauteur += 1
 
         return True
 
@@ -182,6 +186,9 @@ class UTXOSet:
                 self.registre["block_hash"][self.current_block_hash] = []
             self.registre["block_hash"][self.current_block_hash].append(cur_output)
             #TODO : partie block_hash
+    
+    def get_hauteur(self):
+        return self.hauteur
 
     def is_spent(self,sig):
         if to_str(sig) in self.registre["sig"]:
@@ -219,7 +226,8 @@ class UTXOSet:
         new_set_data = {
             "arbre" : self.arbre,
             "registre" : self.registre,
-            "current_block_hash" : self.current_block_hash
+            "current_block_hash" : self.current_block_hash,
+            "hauteur" : self.hauteur
         }
 
         new_set_content = json.dumps(new_set_data)
