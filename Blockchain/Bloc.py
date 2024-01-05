@@ -43,8 +43,6 @@ class Bloc:
         self.timestamp = timestamp
         self.pow_number = pow_number
         self.coinbase_transaction = coinbase_transaction
-        self.counter+=1
-        self.position = self.counter
         self.reward = self._set_reward()
 
     @classmethod
@@ -66,9 +64,7 @@ class Bloc:
 
         return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)
 
-    def __eq__(self, other):
-        if isinstance(other, Bloc):
-            return other.position == self.position
+    
         
 
     #-----------------------------------------------------------#
@@ -140,10 +136,11 @@ class Bloc:
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
         if self.is_valid():
+            self.counter+=1
             self.timestamp = time.time()
 
     def _set_reward(self):
-        return INITIAL_REWARD * (1/2) ** (self.counter % WAVE)
+        return INITIAL_REWARD * (1/2) ** (self.counter+1 % WAVE)
 
     #-----------------------------------------------------------#
     #-------------------------- State --------------------------#
@@ -156,6 +153,9 @@ class Bloc:
         hashed = self.get_block_hash()
         print(hashed)
         return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
+    
+    def is_full(self):
+        return len(self.transactions)==NB_MAX_TRANSACTIONS
     
     """
         il faut rajouter la vérification du bloc précédent.
@@ -226,10 +226,6 @@ class Bloc:
     #-----------------------------------------------------------#
     #------------------------- Saving --------------------------#
     #-----------------------------------------------------------#
-    
-    def fichier_definitif(self):
-        os.mkdir(self.BLOC_FOLDER+self.get_block_hash())
-        self.save()
 
     def get_block_text(self):
         
@@ -283,5 +279,4 @@ class Bloc:
         if self.is_finished():
             with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
                 f.write(self.get_block_text())
-
     
