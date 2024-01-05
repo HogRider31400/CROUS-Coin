@@ -43,8 +43,6 @@ class Bloc:
         self.timestamp = timestamp
         self.pow_number = pow_number
         self.coinbase_transaction = coinbase_transaction
-        self.counter+=1
-        self.position = self.counter
         self.reward = self._set_reward()
 
     @classmethod
@@ -132,15 +130,16 @@ class Bloc:
 
 
     #methode qui permet de sceller le bloc
-    def _set_timestamp(self):
+    def set_timestamp(self):
         if self.is_finished():
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
         if self.is_valid():
+            self.counter+=1
             self.timestamp = time.time()
 
     def _set_reward(self):
-        return INITIAL_REWARD * (1/2) ** (self.counter % WAVE)
+        return INITIAL_REWARD * (1/2) ** (self.counter+1 % WAVE)
 
     #-----------------------------------------------------------#
     #-------------------------- State --------------------------#
@@ -219,10 +218,6 @@ class Bloc:
         output.append("Timestamp: " + self.timestamp + "\n")
         output.append("Proof of work: " + self.pow_number + "\n")
         return output
-    
-    def __eq__(self, other):
-        if isinstance(other, Bloc):
-            return other.position == self.position
 
     
     #-----------------------------------------------------------#
@@ -283,19 +278,4 @@ class Bloc:
         if self.is_finished():
             with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
                 f.write(self.get_block_text())
-        else:
-            with open(self.BLOC_FOLDER+"bloc_actuel","w") as f:
-                f.write(self.get_block_text())
-
-    #fixe l'heure de validité du bloc, sauvegarde le bloc à partir de son hash, reset le bloc courant
-    def sceller(self):
-        if self.is_finished():
-            return
-        else:
-            self._set_timestamp()
-            with open(self.BLOC_FOLDER+self.get_block_hash(),"w") as f:
-                f.write(self.get_block_text())
-            with open(self.BLOC_FOLDER+"bloc_actuel","w") as f:
-                f.write("")
-
     

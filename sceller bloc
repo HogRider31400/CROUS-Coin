@@ -1,0 +1,61 @@
+[33md9d4d7f[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: commit: bloc_courant chem introuvable
+[33md0ebb8f[m HEAD@{1}: commit: maj bloc_courant défaillante
+[33m50919ed[m HEAD@{2}: pull: Merge made by the 'ort' strategy.
+[33m3a31f5b[m HEAD@{3}: commit: sceller bloc
+[33md33ad1a[m HEAD@{4}: commit: rectif save bloc
+[33m8e09e83[m HEAD@{5}: commit (merge): having
+[33mbf77b53[m HEAD@{6}: commit: having
+[33m08ce396[m HEAD@{7}: commit: preivous_bloc pour le bloc racine
+[33m42bdeb7[m HEAD@{8}: commit: testBloc setcoinbase
+[33mb0ee0d1[m HEAD@{9}: pull: Fast-forward
+[33mc5294ab[m HEAD@{10}: commit: rectif is_valid
+[33m5a62f86[m HEAD@{11}: pull: Merge made by the 'ort' strategy.
+[33mea184b4[m HEAD@{12}: commit: testMinedBloc
+[33m4eedc9b[m HEAD@{13}: commit: rectification Bloc.from_text
+[33m1c93463[m HEAD@{14}: pull: Fast-forward
+[33m7f88928[m HEAD@{15}: commit: verification bloc precedent(
+[33m6d89611[m HEAD@{16}: commit: set_coinbase_tx
+[33mad19a39[m HEAD@{17}: commit: methode miner rectifiée
+[33m9d7ceee[m HEAD@{18}: commit: maj de test_number
+[33mee83d77[m HEAD@{19}: commit: modifs methods sceller bloc
+[33m5981408[m HEAD@{20}: commit: methodes pour sceller un bloc
+[33md9a4681[m HEAD@{21}: commit: cleaning bloc
+[33m49478da[m HEAD@{22}: pull: Merge made by the 'ort' strategy.
+[33md4bfe80[m HEAD@{23}: commit: modif hash
+[33m7c18ed7[m HEAD@{24}: pull: Merge made by the 'ort' strategy.
+[33m749bb1e[m HEAD@{25}: commit: test hash
+[33m05b6b3f[m HEAD@{26}: pull: Fast-forward
+[33m365b7f2[m HEAD@{27}: pull: Fast-forward
+[33m7a3840d[m HEAD@{28}: commit: blocTest is_mined test
+[33m1fa4a24[m HEAD@{29}: pull: Merge made by the 'ort' strategy.
+[33md813e71[m HEAD@{30}: commit: corrections textes pour bloctest
+[33m1e17055[m HEAD@{31}: pull: Fast-forward
+[33m5ed50c7[m HEAD@{32}: reset: moving to origin/main
+[33ma98b9ce[m HEAD@{33}: commit (merge): minage terminé
+[33m4b53bec[m HEAD@{34}: commit: minage fini
+[33me0877c5[m HEAD@{35}: commit: ajout de coinbase_tx dans le const from_text
+[33m63d653f[m HEAD@{36}: pull: Merge made by the 'ort' strategy.
+[33md4bb0b5[m HEAD@{37}: commit: methode de minage
+[33mdb66943[m HEAD@{38}: commit: verif transactions dans utxo
+[33mc5cd061[m HEAD@{39}: commit: ajout coinbase_tx dans const
+[33meae5327[m HEAD@{40}: pull: Fast-forward
+[33md04cb25[m HEAD@{41}: pull: Merge made by the 'ort' strategy.
+[33m69cd1c5[m HEAD@{42}: commit: leftovers bloc & methods minage
+[33m3a2ee6d[m HEAD@{43}: pull: Fast-forward
+[33ma41949a[m HEAD@{44}: commit: repr bloc
+[33mbdcab3c[m HEAD@{45}: commit: is_valid + add_transaction, bloc
+[33m58a07c8[m HEAD@{46}: pull: Fast-forward
+[33mb3107fc[m HEAD@{47}: commit: constructeur minage
+[33med60b58[m HEAD@{48}: commit: methodes get_hash & is_mined block
+[33ma6ee269[m HEAD@{49}: commit (merge): constructeur block
+[33m7853794[m HEAD@{50}: pull: Merge made by the 'ort' strategy.
+[33m8e44f1b[m HEAD@{51}: commit: sui
+[33m19d721c[m HEAD@{52}: pull: Fast-forward
+[33m3b11a73[m HEAD@{53}: commit (merge): determination de k
+[33m10f8c3a[m HEAD@{54}: commit: determination de K
+[33m04e6000[m HEAD@{55}: pull: Fast-forward
+[33ma27f20f[m HEAD@{56}: checkout: moving from testBranch to main
+[33m771fcba[m[33m ([m[1;31morigin/testBranch[m[33m, [m[1;32mtestBranch[m[33m)[m HEAD@{57}: commit: test division + div zéro a vérifier
+[33ma27f20f[m HEAD@{58}: checkout: moving from main to testBranch
+[33ma27f20f[m HEAD@{59}: commit: test CorpsFini
+[33me9d1c6a[m HEAD@{60}: clone: from https://github.com/HogRider31400/CROUS-Coin.git
