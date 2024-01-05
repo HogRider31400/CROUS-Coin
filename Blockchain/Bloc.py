@@ -75,7 +75,7 @@ class Bloc:
         
         if self.pow_number==None:
             return -1
-        h = hashlib.sha512(self.get_block_text().encode())
+        h = hashlib.sha256(self.get_block_text().encode())
         return h.hexdigest()
     
     def get_pow_number(self):
