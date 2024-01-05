@@ -33,7 +33,7 @@ WAVE = 2
 
 class Bloc:
 
-    counter = 0
+    hauteur=0
 
     def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs',utxo_set=""):
         self.utxo_set = utxo_set 
@@ -42,9 +42,9 @@ class Bloc:
         self.transactions=transactions
         self.timestamp = timestamp
         self.pow_number = pow_number
-        self.coinbase_transaction = coinbase_transaction
+        self.set_hauter()
         self.reward = self._set_reward()
-        print("reward : " + str(self.reward) + "/counter: " + str(self.counter))
+        self.coinbase_transaction = coinbase_transaction
 
     @classmethod
     def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
@@ -136,11 +136,14 @@ class Bloc:
             print("Erreur: bloc fermé, plus de modifications possibles")
             return
         if self.is_valid():
-            Bloc.counter+=1
+            Bloc.hauteur+=1
             self.timestamp = time.time()
 
     def _set_reward(self):
-        return INITIAL_REWARD * (1/2) ** (self.counter+1 // WAVE)
+        return INITIAL_REWARD * (1/2) ** (self.hauteur // WAVE)
+    
+    def set_hauter(self):
+        Bloc.hauteur = self.utxo_set.get_hauteur()
 
     #-----------------------------------------------------------#
     #-------------------------- State --------------------------#
