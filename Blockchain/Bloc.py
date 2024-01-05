@@ -24,6 +24,7 @@ from Transaction import Transaction
 
 from UTXOSet import UTXOSet
 import os
+import math
 
 SIZE = 32
 SIZE_TARGET = 3
@@ -35,7 +36,7 @@ class Bloc:
 
     hauteur=0
 
-    def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs',utxo_set=""):
+    def __init__(self, previous_block_hash, transactions, coinbase_transaction=None, timestamp=None, pow_number=None,BLOC_FOLDER='./blocs',utxo_set="",block_difficulty=SIZE_TARGET):
         self.utxo_set = utxo_set 
         self.BLOC_FOLDER = BLOC_FOLDER
         self.previous_block_hash=previous_block_hash
@@ -45,6 +46,7 @@ class Bloc:
         self.set_hauter()
         self.reward = self._set_reward()
         self.coinbase_transaction = coinbase_transaction
+        self.block_difficulty = block_difficulty
 
     @classmethod
     def from_text(cls,text,BLOC_FOLDER='./blocs',utxo_set=""):
@@ -53,6 +55,7 @@ class Bloc:
         previous_block_hash = bloc_data["previous_block_hash"]
         timestamp = bloc_data["timestamp"]
         transactions_data = bloc_data["transactions"]
+        block_difficulty = bloc_data["block_difficulty"]
         transactions = []
         for cur_trans in transactions_data:
             transactions.append(Transaction.from_text(cur_trans,utxo_set))
@@ -63,7 +66,7 @@ class Bloc:
         pow_number = bloc_data["pow_number"]
 
 
-        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set)
+        return cls(previous_block_hash,transactions,coinbase_transaction, timestamp,pow_number,BLOC_FOLDER,utxo_set,block_difficulty)
 
     
         
@@ -97,9 +100,9 @@ class Bloc:
     def get_coinbase_transaction(self):
         return self.coinbase_transaction
     
-    @staticmethod
-    def get_size_target():
-        return SIZE_TARGET
+
+    def get_size_target(self):
+        return self.block_difficulty
     
     def get_reward(self):
         print("reward : " + self.reward)
@@ -155,7 +158,8 @@ class Bloc:
     def is_mined(self):
         hashed = self.get_block_hash()
         print(hashed)
-        return hashed!=-1 and str(hashed)[0:SIZE_TARGET]=="0"*SIZE_TARGET
+
+        return hashed!=-1 and str(hashed)[0:self.block_difficulty]=="0"*self.block_difficulty
     
     def is_full(self):
         return len(self.transactions)==NB_MAX_TRANSACTIONS
@@ -271,7 +275,8 @@ class Bloc:
             "timestamp" : self.timestamp,
             "coinbase_transaction" : coinbase_transaction,
             "transactions" : tx_list_data,
-            "pow_number" : self.pow_number
+            "pow_number" : self.pow_number,
+            "block_difficulty" : self.block_difficulty
         }
 
         #print("LAAAAAAAAAA")

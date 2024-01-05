@@ -244,7 +244,8 @@ class Utilisateur:
             "timestamp" : None,               
             "coinbase_transaction" : None,
             "transactions" : tx_attente,
-            "pow_number" : None
+            "pow_number" : None,
+            "block_difficulty" : self.utxo_set.get_mining_difficulty()
         }
 
         bo = Bloc.from_text(json.dumps(nouveau_bloc),self.DOSSIER+"blocs/",self.utxo_set)
