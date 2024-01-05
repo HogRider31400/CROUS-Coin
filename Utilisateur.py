@@ -63,7 +63,7 @@ class Utilisateur:
 
     def update_blockchain(self):
 
-        cur_blocs = set(os.listdir(self.DOSSIER+"/blocs/"))
+        cur_blocs = set(os.listdir(self.DOSSIER+"blocs/"))
 
         user_list = os.listdir("./Users/")
         #print(user_list)
@@ -303,4 +303,4 @@ class Utilisateur:
                 print("Jsp pas implémenté")
 
 if __name__ == "__main__":
-    a = Utilisateur(2)
+    a = Utilisateur(3)
