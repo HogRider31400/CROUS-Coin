@@ -58,7 +58,9 @@ class Bloc:
         block_difficulty = bloc_data["block_difficulty"]
         transactions = []
         for cur_trans in transactions_data:
-            transactions.append(Transaction.from_text(cur_trans,utxo_set))
+            val = Transaction.from_text(cur_trans,utxo_set)
+            if val:
+                transactions.append(val)
         if bloc_data["coinbase_transaction"] != None:
             coinbase_transaction = Transaction.from_text(bloc_data["coinbase_transaction"],utxo_set)
         else:
