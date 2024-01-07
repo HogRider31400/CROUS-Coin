@@ -213,6 +213,8 @@ class Bloc:
         if not self.transactions_valid():
             print("Non valide: transactions invalides.")
             return False 
+        if not self.coinbase_transaction.verifier_coinBase_transaction():
+            print("Non valide: coinbase transaction pas valide.")
         if not self.is_mined():
             print("Non valide: bloc pas miné.")
             return False

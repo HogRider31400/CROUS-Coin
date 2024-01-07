@@ -29,7 +29,7 @@ class Minage:
         self.set_tested=new_set_tested
 
     def maj_bloc_text(self):
-        self.bloc_text = self.bloc.get_block_text()
+        self.bloc_text = self.bloc.get_block_text_for_hash()
 
     def setup(self):
         self.bloc.set_coinbase_transaction(self)
