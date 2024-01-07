@@ -48,7 +48,7 @@ class Minage:
         magic_nb=0
         founded=False
         self.setup()
-
+        print("Je vais miner un bloc dont la difficulté est de", self.bloc.block_difficulty)
         #A partir de maintenant on ne touche plus qu'au texte
         #pour trouver le nombre magique
         while not founded and not self.is_obsolete:

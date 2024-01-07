@@ -23,6 +23,7 @@ def to_str(e):
 import json
 import os
 import copy
+import math
 import sys
 sys.path.append("./blocs")
 sys.path.append("..")
@@ -46,6 +47,7 @@ class UTXOSet:
                 "block_hash" : {}
             }
             self.hauteur = 0
+            self.last_ten_blocks = []
             self.current_block_hash = None
             self.save()
         else:
@@ -57,6 +59,7 @@ class UTXOSet:
             self.arbre = set_data["arbre"]
             self.hauteur = set_data["hauteur"]
             self.registre = set_data["registre"]
+            self.last_ten_blocks = set_data["last_ten_blocks"]
             self.current_block_hash = set_data["current_block_hash"]
 
     def get_next_block(self):
@@ -97,7 +100,9 @@ class UTXOSet:
             return False
 
         self.hauteur += 1
-
+        if len(self.last_ten_blocks) == 10:
+            self.last_ten_blocks.pop(0)
+        self.last_ten_blocks.append(next_block_data["timestamp"])
         return True
 
     def update_all(self,reset=False):
@@ -221,13 +226,36 @@ class UTXOSet:
             last_saved_content = f.read()
             self.load_set(last_saved_content)
 
+    def get_mining_mean(self):
+        
+        if len(self.last_ten_blocks) != 10:
+            return None
+        else:
+            diff_s = 0
+            for i in range(1,10):
+                diff_s += self.last_ten_blocks[i] - self.last_ten_blocks[i-1] 
+            return (diff_s/60)/len(self.last_ten_blocks)
+
+    def get_mining_difficulty(self):
+        x = self.get_mining_mean()
+        if not x:
+            x = 2
+    
+        f = lambda x: math.floor(-(8*x/21 - 1.5)**3 + 5)
+        y = f(x)
+
+        if y < 3:
+            y = 3
+        return y
+
     def save(self):
 
         new_set_data = {
             "arbre" : self.arbre,
             "registre" : self.registre,
             "current_block_hash" : self.current_block_hash,
-            "hauteur" : self.hauteur
+            "hauteur" : self.hauteur,
+            "last_ten_blocks" : self.last_ten_blocks
         }
 
         new_set_content = json.dumps(new_set_data)

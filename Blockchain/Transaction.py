@@ -56,34 +56,37 @@ class Transaction:
             bloc_data = json.loads(text)
         else:
             bloc_data = text
-        horodatage = bloc_data["horodatage"]
-        adresse_acheteur = bloc_data["acheteur"]
-        inputs_data = bloc_data["inputs"]
-        inputs = []
+        try:
+            horodatage = bloc_data["horodatage"]
+            adresse_acheteur = bloc_data["acheteur"]
+            inputs_data = bloc_data["inputs"]
+            inputs = []
 
-        for cur_input in inputs_data:
+            for cur_input in inputs_data:
 
-            new_cur = cur_input
+                new_cur = cur_input
 
-            new_cur["cleAcheteur"] = Point(cur_input["cleAcheteur"][0],cur_input["cleAcheteur"][1],CourbeElliptique(*utils.courbe))
-            new_cur["sigAcheteur"] = Signature(cur_input["sigAcheteur"][0],cur_input["sigAcheteur"][1])
-            inputs.append(new_cur)
+                new_cur["cleAcheteur"] = Point(cur_input["cleAcheteur"][0],cur_input["cleAcheteur"][1],CourbeElliptique(*utils.courbe))
+                new_cur["sigAcheteur"] = Signature(cur_input["sigAcheteur"][0],cur_input["sigAcheteur"][1])
+                inputs.append(new_cur)
 
-        outputs_data = bloc_data["outputs"]
-        outputs = []
+            outputs_data = bloc_data["outputs"]
+            outputs = []
 
-        for cur_output in outputs_data:
+            for cur_output in outputs_data:
 
-            new_cur = cur_output
+                new_cur = cur_output
 
-            new_cur["cleVendeur"] = Point(cur_output["cleVendeur"][0],cur_output["cleVendeur"][1],CourbeElliptique(*utils.courbe))
-            new_cur["sigVendeur"] = Signature(cur_output["sigVendeur"][0],cur_output["sigVendeur"][1])
-            outputs.append(new_cur)
+                new_cur["cleVendeur"] = Point(cur_output["cleVendeur"][0],cur_output["cleVendeur"][1],CourbeElliptique(*utils.courbe))
+                new_cur["sigVendeur"] = Signature(cur_output["sigVendeur"][0],cur_output["sigVendeur"][1])
+                outputs.append(new_cur)
 
 
-        outputs = bloc_data["outputs"]
+            outputs = bloc_data["outputs"]
 
-        return cls(inputs,outputs,adresse_acheteur,horodatage,utxo_set)
+            return cls(inputs,outputs,adresse_acheteur,horodatage,utxo_set)
+        except:
+            return None
     
     def afficherIO(self,tabIO):
         '''Permet d'afficher un tableau d'entrées ou de sorties'''

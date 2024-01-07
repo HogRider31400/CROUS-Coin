@@ -244,7 +244,8 @@ class Utilisateur:
             "timestamp" : None,               
             "coinbase_transaction" : None,
             "transactions" : tx_attente,
-            "pow_number" : None
+            "pow_number" : None,
+            "block_difficulty" : self.utxo_set.get_mining_difficulty()
         }
 
         bo = Bloc.from_text(json.dumps(nouveau_bloc),self.DOSSIER+"blocs/",self.utxo_set)
@@ -252,10 +253,23 @@ class Utilisateur:
         self.mineur = Minage(bo,self.wallet,self)
 
         self.mineur.miner()
+
         if not self.mineur.is_obsolete:
             bo.save()
+            with open(CHEMINACCESTX) as f:
+                datas = f.read()
+            try:
+                data_content = json.loads(datas)
+            except:
+                data_content = []
+            
+            for elem in tx_attente:
+                data_content.remove(elem)
+            print(data_content)
+
             with open(CHEMINACCESTX,"w") as f:
-                pass
+                f.write(json.dumps(data_content))
+
             self.utxo_set.update_next_block()
             self.utxo_set.save()
 
