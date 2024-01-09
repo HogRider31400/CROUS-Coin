@@ -203,9 +203,9 @@ class Bloc:
 
     def is_mined(self):
         hashed = self.get_block_hash()
-        print(hashed)
+        utxo_block_difficulty = self.utxo_set.get_mining_difficulty(self.previous_block_hash)
 
-        return hashed!=-1 and str(hashed)[0:self.block_difficulty]=="0"*self.block_difficulty
+        return hashed!=-1 and str(hashed)[0:self.block_difficulty]=="0"*utxo_block_difficulty
     
     def is_full(self):
         return len(self.transactions)==NB_MAX_TRANSACTIONS
@@ -252,9 +252,9 @@ class Bloc:
             print("Erreur: bloc fermé, plus de modifications possibles")
             return 
         for transaction in self.transactions:
-            if not transaction.verifier() or not self.UTXO.try_update_tree(transaction):
+            if not transaction.verifier(): #or not self.UTXO.try_update_tree(transaction):
                 self.transactions.remove(transaction)
-        self.UTXO.save()
+        #self.UTXO.save()
     
     def add_transaction(self, transaction):
         if self.is_finished():

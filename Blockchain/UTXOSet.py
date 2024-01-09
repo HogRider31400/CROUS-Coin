@@ -44,7 +44,8 @@ class UTXOSet:
             self.registre = {
                 "user" : {},
                 "sig" : {},
-                "block_hash" : {}
+                "block_hash" : {},
+                "block_height" : {}
             }
             self.hauteur = 0
             self.blocks_timestamps = []
@@ -100,6 +101,7 @@ class UTXOSet:
             return False
 
         self.hauteur += 1
+        self.registre["block_height"][next_block_hash] = self.hauteur
         self.blocks_timestamps.append(next_block_data["timestamp"])
         return True
 
@@ -226,23 +228,23 @@ class UTXOSet:
 
     def get_mining_mean(self,block_height):
         
-        if len(self.blocks_timestamps) != 10:
+        if len(self.blocks_timestamps) < 10:
             return None
         else:
             diff_s = 0
-            for i in range(block_height+1,block_height+10):
+            for i in range(block_height-9,block_height):
                 diff_s += self.blocks_timestamps[i] - self.blocks_timestamps[i-1] 
-            return (diff_s/60)/len(10)
+            return (diff_s/60)/10
 
-    def get_mining_difficulty(self,block_height=None):
+    def get_mining_difficulty(self,block_hash=None):
         
-        if not block_height:
+        if not block_hash:
             block_height = self.hauteur
-
+        else:
+            block_height = self.registre["block_height"][block_hash]
         x = self.get_mining_mean(block_height)
         if not x:
             x = 2
-    
         f = lambda x: math.floor(-(8*x/21 - 1.5)**3 + 5)
         y = f(x)
 
@@ -261,6 +263,5 @@ class UTXOSet:
         }
 
         new_set_content = json.dumps(new_set_data)
-
         with open(self.UTXO_FOLDER+"data","w") as f:
             f.write(new_set_content)

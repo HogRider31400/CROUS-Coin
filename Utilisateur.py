@@ -82,7 +82,7 @@ class Utilisateur:
             corresp_graphe = {}
 
             for cur_bloc in user_blocs:
-                
+                if cur_bloc == "data": continue
                 with open("./Users/"+user+"/blocs/"+cur_bloc) as f:
                     file_data = f.read()
                 
@@ -105,7 +105,7 @@ class Utilisateur:
                 #Piste d'optimisation : partir de l'utxoset que l'utilsateur a et vérifier à partir de là
                 #print("SALUUUUUUUUUUUUUUUUUT")
                 #print(user)
-                is_valid = UTXOSet("",False,self.DOSSIER+"temp/","./Users/"+user+"/blocs/").update_all()
+                is_valid = UTXOSet("",False,"./Users/"+user+"/blocs/",self.DOSSIER+"temp/").update_all()
                 if is_valid:
                     to_check.append((get_chain_length(corresp_graphe),nb_transac_dernier_bloc(user,blocs_pas_dans),blocs_pas_dans))
         #print("SALUUUUUUUUUUUUUUUT")
@@ -317,4 +317,4 @@ class Utilisateur:
                 print("Jsp pas implémenté")
 
 if __name__ == "__main__":
-    a = Utilisateur(3)
+    a = Utilisateur(6)
