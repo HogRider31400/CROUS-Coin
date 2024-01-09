@@ -25,11 +25,8 @@ from Transaction import Transaction
 from UTXOSet import UTXOSet
 import os
 import math
+from Blockchain.utils_bloc import SIZE_TARGET, NB_MAX_TRANSACTIONS, INITIAL_REWARD, WAVE
 
-SIZE_TARGET = 3
-NB_MAX_TRANSACTIONS = 5
-INITIAL_REWARD = 20
-WAVE = 100
 
 class Bloc:
 
@@ -220,6 +217,8 @@ class Bloc:
         if not self.transactions_valid():
             print("Non valide: transactions invalides.")
             return False 
+        if not self.coinbase_transaction.verifier_coinBase_transaction():
+            print("Non valide: coinbase transaction pas valide.")
         if not self.is_mined():
             print("Non valide: bloc pas miné.")
             return False

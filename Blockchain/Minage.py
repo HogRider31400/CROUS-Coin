@@ -16,7 +16,7 @@ class Minage:
         self.bloc=bloc
         self.private_key = user.private_key
         self.user_object = user
-        self.bloc_text = bloc.get_block_text()
+        self.bloc_text = bloc.get_block_text_for_hash()
         self.id_user=id_user
         self.set_tested=set_tested
         self.is_obsolete = False
@@ -29,7 +29,7 @@ class Minage:
         self.set_tested=new_set_tested
 
     def maj_bloc_text(self):
-        self.bloc_text = self.bloc.get_block_text()
+        self.bloc_text = self.bloc.get_block_text_for_hash()
 
     def setup(self):
         self.bloc.set_coinbase_transaction(self)
