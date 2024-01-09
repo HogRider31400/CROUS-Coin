@@ -47,7 +47,7 @@ class UTXOSet:
                 "block_hash" : {}
             }
             self.hauteur = 0
-            self.last_ten_blocks = []
+            self.blocks_timestamps = []
             self.current_block_hash = None
             self.save()
         else:
@@ -59,7 +59,7 @@ class UTXOSet:
             self.arbre = set_data["arbre"]
             self.hauteur = set_data["hauteur"]
             self.registre = set_data["registre"]
-            self.last_ten_blocks = set_data["last_ten_blocks"]
+            self.blocks_timestamps = set_data["blocks_timestamps"]
             self.current_block_hash = set_data["current_block_hash"]
 
     def get_next_block(self):
@@ -100,9 +100,7 @@ class UTXOSet:
             return False
 
         self.hauteur += 1
-        if len(self.last_ten_blocks) == 10:
-            self.last_ten_blocks.pop(0)
-        self.last_ten_blocks.append(next_block_data["timestamp"])
+        self.blocks_timestamps.append(next_block_data["timestamp"])
         return True
 
     def update_all(self,reset=False):
@@ -226,18 +224,22 @@ class UTXOSet:
             last_saved_content = f.read()
             self.load_set(last_saved_content)
 
-    def get_mining_mean(self):
+    def get_mining_mean(self,block_height):
         
-        if len(self.last_ten_blocks) != 10:
+        if len(self.blocks_timestamps) != 10:
             return None
         else:
             diff_s = 0
-            for i in range(1,10):
-                diff_s += self.last_ten_blocks[i] - self.last_ten_blocks[i-1] 
-            return (diff_s/60)/len(self.last_ten_blocks)
+            for i in range(block_height+1,block_height+10):
+                diff_s += self.blocks_timestamps[i] - self.blocks_timestamps[i-1] 
+            return (diff_s/60)/len(10)
 
-    def get_mining_difficulty(self):
-        x = self.get_mining_mean()
+    def get_mining_difficulty(self,block_height=None):
+        
+        if not block_height:
+            block_height = self.hauteur
+
+        x = self.get_mining_mean(block_height)
         if not x:
             x = 2
     
@@ -255,7 +257,7 @@ class UTXOSet:
             "registre" : self.registre,
             "current_block_hash" : self.current_block_hash,
             "hauteur" : self.hauteur,
-            "last_ten_blocks" : self.last_ten_blocks
+            "blocks_timestamps" : self.blocks_timestamps
         }
 
         new_set_content = json.dumps(new_set_data)

@@ -26,11 +26,10 @@ from UTXOSet import UTXOSet
 import os
 import math
 
-SIZE = 32
 SIZE_TARGET = 3
 NB_MAX_TRANSACTIONS = 5
 INITIAL_REWARD = 20
-WAVE = 2
+WAVE = 100
 
 class Bloc:
 
@@ -81,7 +80,7 @@ class Bloc:
         
         if self.pow_number==None:
             return -1
-        h = hashlib.sha256(self.get_block_text().encode())
+        h = hashlib.sha256(self.get_block_text_for_hash().encode())
         return h.hexdigest()
     
     def get_pow_number(self):
@@ -109,6 +108,54 @@ class Bloc:
     def get_reward(self):
         print("reward : " + self.reward)
         return self.reward
+    
+    def get_dict(self):
+        
+        #fonction qui met les transactions sous forme de texte.
+        def get_tx_data(tx):
+            if tx == None:
+                return None
+            inputs = []
+            for cur_input in copy.deepcopy(tx.get_inputs()):
+                new_input = cur_input 
+                new_input["cleAcheteur"] = tuple(cur_input["cleAcheteur"].get_coords())
+                new_input["sigAcheteur"] = tuple(cur_input["sigAcheteur"].get_sig())
+                inputs.append(new_input)
+
+            outputs = []
+
+            for cur_output in copy.deepcopy(tx.get_outputs()):
+                new_output = cur_output
+                new_output["cleVendeur"] = tuple(cur_output["cleVendeur"].get_coords())
+                new_output["sigVendeur"] = tuple(cur_output["sigVendeur"].get_sig())
+                outputs.append(new_output)
+            
+            return {
+                    "horodatage" : tx.get_horodatage(),
+                    "acheteur" : tx.adresseAcheteur,
+                    "inputs" : inputs,
+                    "outputs" : outputs
+                }
+        coinbase_transaction = get_tx_data(self.coinbase_transaction)        
+
+        tx_list_data = []
+ 
+        for tx in self.transactions:
+            tx_list_data.append(
+                get_tx_data(tx)
+            )
+
+
+        bloc_data = {
+            "previous_block_hash" : self.previous_block_hash,
+            "timestamp" : self.timestamp,
+            "coinbase_transaction" : coinbase_transaction,
+            "transactions" : tx_list_data,
+            "pow_number" : self.pow_number,
+            "block_difficulty" : self.block_difficulty
+        }
+
+        return bloc_data
 
     #-----------------------------------------------------------#
     #------------------------- Setters -------------------------#
@@ -219,70 +266,20 @@ class Bloc:
         else:
             print("Nombre max de transactions atteint.")
 
-    def __repr__(self):
-        output=""
-        output.append("BLOC \n")
-        output.append("Previous bloc hash: " + self.previous_block + "\n")
-        output.append("Coinbase transactoin: " + self.coinbase_transaction + "\n")
-        output.append("Transactions: \n")
-        for transaction in self.transactions:
-            output.append(transaction + "\n")
-        output.append("Timestamp: " + self.timestamp + "\n")
-        output.append("Proof of work: " + self.pow_number + "\n")
-        return output
-
     
     #-----------------------------------------------------------#
     #------------------------- Saving --------------------------#
     #-----------------------------------------------------------#
 
+    #méthode utilisée pour la sauvegarde 
     def get_block_text(self):
-        
-        def get_tx_data(tx):
-            if tx == None:
-                return None
-            inputs = []
-            for cur_input in copy.deepcopy(tx.get_inputs()):
-                new_input = cur_input 
-                new_input["cleAcheteur"] = tuple(cur_input["cleAcheteur"].get_coords())
-                new_input["sigAcheteur"] = tuple(cur_input["sigAcheteur"].get_sig())
-                inputs.append(new_input)
-
-            outputs = []
-
-            for cur_output in copy.deepcopy(tx.get_outputs()):
-                new_output = cur_output
-                new_output["cleVendeur"] = tuple(cur_output["cleVendeur"].get_coords())
-                new_output["sigVendeur"] = tuple(cur_output["sigVendeur"].get_sig())
-                outputs.append(new_output)
-            
-            return {
-                    "horodatage" : tx.get_horodatage(),
-                    "acheteur" : tx.adresseAcheteur,
-                    "inputs" : inputs,
-                    "outputs" : outputs
-                }
-        coinbase_transaction = get_tx_data(self.coinbase_transaction)        
-
-        tx_list_data = []
- 
-        for tx in self.transactions:
-            tx_list_data.append(
-                get_tx_data(tx)
-            )
-
-
-        bloc_data = {
-            "previous_block_hash" : self.previous_block_hash,
-            "timestamp" : self.timestamp,
-            "coinbase_transaction" : coinbase_transaction,
-            "transactions" : tx_list_data,
-            "pow_number" : self.pow_number,
-            "block_difficulty" : self.block_difficulty
-        }
-
-        #print("LAAAAAAAAAA")
-        #print(bloc_data)
+        bloc_data = self.get_dict()
+        return json.dumps(bloc_data)
+    
+    #méthode utilisée pour hasher, en eleve le timestamp
+    def get_block_text_for_hash(self):
+        bloc_data = self.get_dict()
+        del bloc_data['timestamp']
         return json.dumps(bloc_data)
     
     def save(self):
